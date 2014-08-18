@@ -39,7 +39,7 @@ public class DownloadRequestQueue {
         // Tag the request as belonging to this queue and add it to the set of current requests.
         request.setDownloadRequestQueue(this);
         // Set the download listener.
-        request.setmDownloadListener(listener);
+        request.setDownloadListener(listener);
         synchronized (mCurrentRequests) {
             mCurrentRequests.add(request);
         }
@@ -81,7 +81,8 @@ public class DownloadRequestQueue {
     }
 
     public void finish() {
-    	
+    	//Remove from the queue.
+
     }
 
 }

@@ -2,37 +2,6 @@ package com.slim.downloadmanager;
 
 public class SlimDownloadManager implements DownloadManager {
 
-	
-    /**
-     * Status when the download is currently pending.
-     */
-    public final static int STATUS_PENDING = 1 << 0;
-
-    /**
-     * Status when the download is currently pending.
-     */
-    public final static int STATUS_STARTED = 1 << 1;
-
-    /**
-     * Status when the download is currently running.
-     */
-    public final static int STATUS_RUNNING = 1 << 2;
-
-    /**
-     * Status when the download has successfully completed.
-     */
-    public final static int STATUS_SUCCESSFUL = 1 << 3;
-
-    /**
-     * Status when the download has failed.
-     */
-    public final static int STATUS_FAILED = 1 << 4;
-
-    /**
-     * Status when the download has failed.
-     */
-    public final static int STATUS_NOT_FOUND = 1 << 5;
-    
     private DownloadRequestQueue mRequestQueue;
     private static SlimDownloadManager mInstance = null;
     
@@ -41,7 +10,7 @@ public class SlimDownloadManager implements DownloadManager {
     	mRequestQueue.start();
 	}
     
-    public SlimDownloadManager getInstance() {
+    public static SlimDownloadManager getInstance() {
     	if (mInstance == null) {
     		mInstance = new SlimDownloadManager();
     	}

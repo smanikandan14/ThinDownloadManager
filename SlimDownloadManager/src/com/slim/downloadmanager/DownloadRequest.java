@@ -25,7 +25,20 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     }
     
     private Priority mPriority = Priority.NORMAL;
-    
+
+    public DownloadRequest(Uri uri) {
+        if ( uri == null) {
+            throw new NullPointerException();
+        }
+
+        String scheme = uri.getScheme();
+        if (scheme == null || scheme.equals("http") == false ) {
+            throw new IllegalArgumentException("Can download only http URIs: "+uri);
+        }
+
+        mUri = uri;
+    }
+
     /**
      * Returns the {@link Priority} of this request; {@link Priority#NORMAL} by default.
      */
@@ -33,73 +46,84 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return mPriority;
     }
 
-    public void setPriority(Priority priority) {
+    public DownloadRequest setPriority(Priority priority) {
     	mPriority = priority;
+        return this;
     }
 
      /**
      * Associates this request with the given queue. The request queue will be notified when this
      * request has finished.
      */
-    public void setDownloadRequestQueue(DownloadRequestQueue downloadQueue) {
+    void setDownloadRequestQueue(DownloadRequestQueue downloadQueue) {
     	mRequestQueue = downloadQueue;
     }
 
     /**
      * Sets the sequence number of this request.  Used by {@link RequestQueue}.
      */
-    public final void setDownloadId(int downloadId) {
+    final void setDownloadId(int downloadId) {
         mDownloadId = downloadId;
     }
 
+    final int getDownloadId() {
+        return mDownloadId;
+    }
     
-    public int getmDownloadState() {
+    int getDownloadState() {
 		return mDownloadState;
 	}
 
-	public void setmDownloadState(int mDownloadState) {
+	void setDownloadState(int mDownloadState) {
 		this.mDownloadState = mDownloadState;
 	}
 
-	public DownloadStatusListener getmDownloadListener() {
+	DownloadStatusListener getDownloadListener() {
 		return mDownloadListener;
 	}
 
-	public void setmDownloadListener(DownloadStatusListener mDownloadListener) {
+	DownloadRequest setDownloadListener(DownloadStatusListener mDownloadListener) {
 		this.mDownloadListener = mDownloadListener;
+        return this;
 	}
 
 	public Uri getUri() {
 		return mUri;
 	}
 
-	public void setUri(Uri mUri) {
+	public DownloadRequest setUri(Uri mUri) {
 		this.mUri = mUri;
+        return this;
 	}
 
 	public Uri getDestinationURI() {
 		return mDestinationURI;
 	}
 
-	public void setDestinationURI(Uri mDestinationURI) {
+	public DownloadRequest setDestinationURI(Uri mDestinationURI) {
 		this.mDestinationURI = mDestinationURI;
+        return this;
 	}
 
 	public boolean isRoamingAllowed() {
 		return mRoamingAllowed;
 	}
 
-	public void setRoamingAllowed(boolean mRoamingAllowed) {
+	public DownloadRequest setRoamingAllowed(boolean mRoamingAllowed) {
 		this.mRoamingAllowed = mRoamingAllowed;
+        return this;
 	}
 
 	public int getAllowedNetworkTypes() {
 		return mAllowedNetworkTypes;
 	}
 
-	public void setAllowedNetworkTypes(int mAllowedNetworkTypes) {
+	public DownloadRequest setAllowedNetworkTypes(int mAllowedNetworkTypes) {
 		this.mAllowedNetworkTypes = mAllowedNetworkTypes;
+        return this;
 	}
+
+    //Package-private methods.
 
 	void finish() {
     	mRequestQueue.finish();

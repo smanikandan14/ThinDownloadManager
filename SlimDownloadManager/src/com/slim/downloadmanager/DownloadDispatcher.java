@@ -1,11 +1,7 @@
 package com.slim.downloadmanager;
 
-import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
-import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
-import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
-import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
+import android.content.Context;
+import android.os.Process;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -14,13 +10,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
 
-import android.content.Context;
-import android.os.PowerManager;
-import android.os.Process;
+import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
+import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
+import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class DownloadDispatcher extends Thread {
 
@@ -32,6 +32,7 @@ public class DownloadDispatcher extends Thread {
 
 	public static URL mUrl;
 	private static Context mContext;
+    private DownloadRequest mRequest;
 
     public DownloadDispatcher(BlockingQueue<DownloadRequest> queue) {
         mQueue = queue;
@@ -48,8 +49,9 @@ public class DownloadDispatcher extends Thread {
         
     	while(true) {
     		try {
-    			DownloadRequest request = mQueue.take();
-    			initiateDownload(request);
+                mRequest = mQueue.take();
+                updateDownloadStatus(DownloadManager.STATUS_STARTED, 0);
+    			initiateDownload();
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
@@ -59,9 +61,14 @@ public class DownloadDispatcher extends Thread {
     		}
     	}
     }
-    
-	public static void initiateDownload(DownloadRequest request) {
-        PowerManager.WakeLock wakeLock = null;
+
+    public void updateDownloadStatus(int downloadStatus,int progress) {
+        mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
+                downloadStatus,progress);
+    }
+
+	public void initiateDownload() {
+        /*PowerManager.WakeLock wakeLock = null;
         final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
 
         try {
@@ -72,14 +79,19 @@ public class DownloadDispatcher extends Thread {
             executeDownload();
         } catch (Exception e) {
         	e.printStackTrace();
-        }
-
+        }*/
+        executeDownload();
 	}
 	
 	private static int DEFAULT_TIMEOUT = 20000;
 	
-	private static void executeDownload() {
-		
+	private void executeDownload() {
+        try {
+            mUrl = new URL(mRequest.getUri().toString());
+        } catch(MalformedURLException e) {
+            updateDownloadStatus(DownloadManager.STATUS_FAILED, 0);
+            return;
+        }
         HttpURLConnection conn = null;
         try {
             //checkConnectivity();
@@ -125,6 +137,9 @@ public class DownloadDispatcher extends Thread {
                 default:
 //                    StopRequestException.throwUnhandledHttpError(
 //                            responseCode, conn.getResponseMessage());
+                    updateDownloadStatus(DownloadManager.STATUS_FAILED, 0);
+                    mRequest.finish();
+                    break;
             }
         } catch (IOException e) {
             // Trouble with low-level sockets
@@ -137,7 +152,7 @@ public class DownloadDispatcher extends Thread {
   //  throw new StopRequestException(STATUS_TOO_MANY_REDIRECTS, "Too many redirects");
 	}
 	
-    private static void transferData(HttpURLConnection conn) {
+    private void transferData(HttpURLConnection conn) {
         InputStream in = null;
         OutputStream out = null;
         FileDescriptor outFd = null;
@@ -148,20 +163,7 @@ public class DownloadDispatcher extends Thread {
                 e.printStackTrace();
             }
 
-    		String filesSubdirectory = mContext.getFilesDir().getPath()+"/nativex/";
-    		File subDirectoryFile = new File(filesSubdirectory);
-    		if (subDirectoryFile.exists() == false) {
-    			subDirectoryFile.mkdir();
-    		}
-    		
-    		filesSubdirectory = filesSubdirectory+"cache/";
-    		subDirectoryFile = new File(filesSubdirectory);
-    		if (subDirectoryFile.exists() == false) {
-    			subDirectoryFile.mkdir();
-    		}
-    		
-    		String FILENAME = filesSubdirectory + "1234.mp4";
-    		File destinationFile = new File(FILENAME);
+    		File destinationFile = new File(mRequest.getDestinationURI().getPath().toString());
     		
             try {
                     out = new FileOutputStream(destinationFile, true);
@@ -203,15 +205,17 @@ public class DownloadDispatcher extends Thread {
     public static final int BUFFER_SIZE = 4096;
     static long mCurrentBytes; 
     
-    private static void transferData(InputStream in, OutputStream out) {
+    private void transferData(InputStream in, OutputStream out) {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
         for (;;) {
             int bytesRead = readFromResponse( data, in);
+            updateDownloadStatus(DownloadManager.STATUS_RUNNING, (int)mCurrentBytes);
             System.out.println("######## Loop continues bytesRead #######  ");
             if (bytesRead == -1) { // success, end of stream already reached
                 //handleEndOfStream(state);
             	System.out.println("######## end of stream #######  ");
+                updateDownloadStatus(DownloadManager.STATUS_SUCCESSFUL, 0);
                 return;
             }
 
@@ -227,7 +231,7 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    private static int readFromResponse( byte[] data, InputStream entityStream) {
+    private int readFromResponse( byte[] data, InputStream entityStream) {
         try {
             return entityStream.read(data);
         } catch (IOException ex) {
@@ -239,7 +243,7 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    private static void writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
+    private void writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
     	
     	System.out.println("######### writeDataToDestination bytesRead ######## "+bytesRead);
         boolean forceVerified = false;
@@ -264,7 +268,7 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    private static void readResponseHeaders( HttpURLConnection conn){
+    private void readResponseHeaders( HttpURLConnection conn){
         String mContentDisposition = conn.getHeaderField("Content-Disposition");
         String mContentLocation = conn.getHeaderField("Content-Location");
         //String mMimeType = Intent.normalizeMimeType(conn.getContentType());
@@ -291,7 +295,7 @@ public class DownloadDispatcher extends Thread {
 //        }
     }
 
-    public static long getHeaderFieldLong(URLConnection conn, String field, long defaultValue) {
+    public long getHeaderFieldLong(URLConnection conn, String field, long defaultValue) {
         try {
             return Long.parseLong(conn.getHeaderField(field));
         } catch (NumberFormatException e) {
