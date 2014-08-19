@@ -32,10 +32,9 @@ public interface DownloadManager {
      */
     public final static int STATUS_NOT_FOUND = 1 << 5;
 
-    public int add( DownloadRequest request,
-			DownloadStatusListener listener);	
+    public int add( DownloadRequest request);
 
-	public void cancel(int downloadId);
+	public int cancel(int downloadId);
 
 	public void cancelAll();
 

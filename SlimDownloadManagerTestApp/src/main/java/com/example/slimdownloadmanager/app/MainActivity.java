@@ -22,13 +22,46 @@ public class MainActivity extends ActionBarActivity {
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setRoamingAllowed(true)
+                .setDownloadListener(new DownloadStatusListener() {
+                    @Override
+                    public void updateDownloadStatus(int id, int status) {
+                        System.out.println("###### updateDownloadStatus ######## "+id+" : "+status);
+                    }
+
+                    @Override
+                    public void updateDownloadProgress(int id, int progress) {
+                        System.out.println("######  updateDownloadProgress ######## "+id+" : "+progress);
+                    }
+                });
+
+        int id1 = SlimDownloadManager.getInstance().add(downloadRequest);
+        System.out.println("###### ID 1 ######## "+id1);
+
+        downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV1/GlobalFiles/17272.mp4");
+        destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test1.mp4");
+        downloadRequest = new DownloadRequest(downloadUri)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setRoamingAllowed(true);
-        SlimDownloadManager.getInstance().add(downloadRequest, new DownloadStatusListener() {
-            @Override
-            public void updateDownloadStatus(long id, int status, int progress) {
-                System.out.println("###### UpdateDownloadStatus id status progress ######## "+id+" : "+status+" : "+progress);
-            }
-        });
+
+        int id2 = SlimDownloadManager.getInstance().add(downloadRequest);
+        System.out.println("###### ID 2 ######## "+id2);
+        downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV2/GlobalFiles/17272.mp4");
+        destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test2.mp4");
+        downloadRequest = new DownloadRequest(downloadUri)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.NORMAL)
+                .setRoamingAllowed(true);
+
+        int id3 = SlimDownloadManager.getInstance().add(downloadRequest);
+        System.out.println("###### ID 3 ######## "+id3);
+        downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV/GlobalFiles/17272.mp4");
+        destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test3.mp4");
+        downloadRequest = new DownloadRequest(downloadUri)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setRoamingAllowed(true);
+
+        int id4 = SlimDownloadManager.getInstance().add(downloadRequest);
+        System.out.println("###### ID 4 ######## "+id4);
     }
 
 

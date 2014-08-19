@@ -11,6 +11,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 	private Uri mUri;
 	private Uri mDestinationURI;
 	private boolean mRoamingAllowed = true;
+    /** Whether or not this request has been canceled. */
+    private boolean mCanceled = false;
     private int mAllowedNetworkTypes = ~0; // default to all network types allowed
 
     /**
@@ -82,7 +84,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		return mDownloadListener;
 	}
 
-	DownloadRequest setDownloadListener(DownloadStatusListener mDownloadListener) {
+	public DownloadRequest setDownloadListener(DownloadStatusListener mDownloadListener) {
 		this.mDownloadListener = mDownloadListener;
         return this;
 	}
@@ -118,15 +120,35 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		return mAllowedNetworkTypes;
 	}
 
-	public DownloadRequest setAllowedNetworkTypes(int mAllowedNetworkTypes) {
-		this.mAllowedNetworkTypes = mAllowedNetworkTypes;
+    /**
+     * Restrict the types of networks over which this download may proceed.  By default, all
+     * network types are allowed.
+     * @param flags any combination of the NETWORK_* bit flags.
+     * @return this object
+     */
+    public DownloadRequest setAllowedNetworkTypes(int flags) {
+        mAllowedNetworkTypes = flags;
         return this;
-	}
+    }
 
     //Package-private methods.
 
-	void finish() {
-    	mRequestQueue.finish();
+    /**
+     * Mark this request as canceled.  No callback will be delivered.
+     */
+    public void cancel() {
+        mCanceled = true;
+    }
+
+    /**
+     * Returns true if this request has been canceled.
+     */
+    public boolean isCanceled() {
+        return mCanceled;
+    }
+
+    void finish() {
+    	mRequestQueue.finish(this);
     }
 
 	@Override

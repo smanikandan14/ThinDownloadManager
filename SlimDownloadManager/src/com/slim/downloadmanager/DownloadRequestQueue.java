@@ -22,24 +22,32 @@ public class DownloadRequestQueue {
         new PriorityBlockingQueue<DownloadRequest>();
 
 
-	// Thread pool executor
+	/** The download dispatchers */
 	DownloadDispatcher[] mDownloadDispatchers;
 
 	/** Used for generating monotonically-increasing sequence numbers for requests. */
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
-	// Single ton instance. 
-	public DownloadRequestQueue() {		
+    /**
+     * Creates the download dispatchers workers pool.
+     */
+	public DownloadRequestQueue() {
 		mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
 	}
 
-	public int add(DownloadRequest request,
-			DownloadStatusListener listener) {
+    // Package-private methods
+    /**
+     * Generates a download id for the request and adds the download request to the
+     * download request queue for the dispatchers pool to act on immediately.
+     * @param request
+     * @param listener
+     * @return downloadId
+     */
+	 int add(DownloadRequest request) {
 		int downloadId = getDownloadId();
         // Tag the request as belonging to this queue and add it to the set of current requests.
         request.setDownloadRequestQueue(this);
-        // Set the download listener.
-        request.setDownloadListener(listener);
+
         synchronized (mCurrentRequests) {
             mCurrentRequests.add(request);
         }
@@ -50,11 +58,23 @@ public class DownloadRequestQueue {
         
 		return downloadId;		
 	}
-	
-	public void start() {
+
+    int query(int downloadId) {
+        synchronized (mCurrentRequests) {
+            for(DownloadRequest request: mCurrentRequests) {
+                if(request.getDownloadId() == downloadId) {
+                    return request.getDownloadState();
+                }
+            }
+        }
+
+        return DownloadManager.STATUS_NOT_FOUND;
+    }
+
+    void start() {
         stop();  // Make sure any currently running dispatchers are stopped.
     
-        // Create network dispatchers (and corresponding threads) up to the pool size.
+        // Create download dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mDownloadDispatchers.length; i++) {
             DownloadDispatcher networkDispatcher = new DownloadDispatcher(mDownloadQueue);
             mDownloadDispatchers[i] = networkDispatcher;
@@ -63,9 +83,9 @@ public class DownloadRequestQueue {
     }
 
     /**
-     * Stops the cache and network dispatchers.
+     * Stops download dispatchers.
      */
-    public void stop() {
+    void stop() {
 		for (int i = 0; i < mDownloadDispatchers.length; i++) {
             if (mDownloadDispatchers[i] != null) {
             	mDownloadDispatchers[i].quit();
@@ -76,13 +96,49 @@ public class DownloadRequestQueue {
     /**
      * Gets a sequence number.
      */
-    public int getDownloadId() {
+    int getDownloadId() {
         return mSequenceGenerator.incrementAndGet();
     }
 
-    public void finish() {
-    	//Remove from the queue.
+    /**
+     * Cancel all the dispatchers in work and also stops the dispatchers.
+     */
+    void cancelAll() {
+        stop();
+        //Remove from the queue.
+        synchronized (mCurrentRequests) {
+            mCurrentRequests.clear();
+        }
+    }
 
+    /**
+     * Cancel a particular download in progress.
+     * Returns 1 if the download Id is found else returns 0.
+     *
+     * @param downloadId
+     * @return int
+     */
+    int cancel(int downloadId) {
+        synchronized (mCurrentRequests) {
+            for(DownloadRequest request: mCurrentRequests) {
+                if(request.getDownloadId() == downloadId) {
+                    request.cancel();
+                    return 1;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    void finish(DownloadRequest request) {
+        System.out.println("####### DownloadRequest Queue finish ####### "+request.getDownloadId());
+        //Remove from the queue.
+        synchronized (mCurrentRequests) {
+            mCurrentRequests.remove(request);
+        }
+
+        System.out.println("####### DownloadRequest Queue after finish ####### "+mCurrentRequests.size());
     }
 
 }

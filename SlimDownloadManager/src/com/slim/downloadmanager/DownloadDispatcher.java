@@ -50,7 +50,9 @@ public class DownloadDispatcher extends Thread {
     	while(true) {
     		try {
                 mRequest = mQueue.take();
-                updateDownloadStatus(DownloadManager.STATUS_STARTED, 0);
+                mRequest.setDownloadState(DownloadManager.STATUS_STARTED);
+                System.out.println("######## Request processed #######  "+mRequest.getDownloadId()+" : "+mRequest.getUri().toString());
+                updateDownloadStatus(DownloadManager.STATUS_STARTED);
     			initiateDownload();
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
@@ -62,9 +64,18 @@ public class DownloadDispatcher extends Thread {
     	}
     }
 
-    public void updateDownloadStatus(int downloadStatus,int progress) {
-        mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
-                downloadStatus,progress);
+    public void updateDownloadStatus(int downloadStatus) {
+        if(mRequest.getDownloadListener() != null) {
+            mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
+                    downloadStatus);
+        }
+    }
+
+    public void updateDownloadProgress(int progress) {
+        if(mRequest.getDownloadListener() != null) {
+            mRequest.getDownloadListener().updateDownloadProgress(mRequest.getDownloadId(),
+                    progress);
+        }
     }
 
 	public void initiateDownload() {
@@ -89,7 +100,7 @@ public class DownloadDispatcher extends Thread {
         try {
             mUrl = new URL(mRequest.getUri().toString());
         } catch(MalformedURLException e) {
-            updateDownloadStatus(DownloadManager.STATUS_FAILED, 0);
+            updateDownloadStatus(DownloadManager.STATUS_FAILED);
             return;
         }
         HttpURLConnection conn = null;
@@ -100,14 +111,16 @@ public class DownloadDispatcher extends Thread {
             conn.setConnectTimeout(DEFAULT_TIMEOUT);
             conn.setReadTimeout(DEFAULT_TIMEOUT);
 
-            //addRequestHeaders(state, conn);
-
             final int responseCode = conn.getResponseCode();
             switch (responseCode) {
                 case HTTP_OK:
                     //if (state.mContinuingDownload) {
                     //}
-                	transferData(conn);
+                    if(readResponseHeaders(conn) == 1) {
+                        transferData(conn);
+                    } else {
+
+                    }
                 	break;
                 case HTTP_MOVED_PERM:
                 case HTTP_MOVED_TEMP:
@@ -137,7 +150,7 @@ public class DownloadDispatcher extends Thread {
                 default:
 //                    StopRequestException.throwUnhandledHttpError(
 //                            responseCode, conn.getResponseMessage());
-                    updateDownloadStatus(DownloadManager.STATUS_FAILED, 0);
+                    updateDownloadStatus(DownloadManager.STATUS_FAILED);
                     mRequest.finish();
                     break;
             }
@@ -208,14 +221,22 @@ public class DownloadDispatcher extends Thread {
     private void transferData(InputStream in, OutputStream out) {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
+        mRequest.setDownloadState(DownloadManager.STATUS_RUNNING);
+        updateDownloadStatus(DownloadManager.STATUS_RUNNING);
+
         for (;;) {
+            if (mRequest.isCanceled()) {
+                System.out.println("######## Request is cancelled so stopping the download #######  ");
+                return;
+            }
             int bytesRead = readFromResponse( data, in);
-            updateDownloadStatus(DownloadManager.STATUS_RUNNING, (int)mCurrentBytes);
-            System.out.println("######## Loop continues bytesRead #######  ");
+
+            updateDownloadProgress((int)mCurrentBytes);
+
             if (bytesRead == -1) { // success, end of stream already reached
                 //handleEndOfStream(state);
             	System.out.println("######## end of stream #######  ");
-                updateDownloadStatus(DownloadManager.STATUS_SUCCESSFUL, 0);
+                updateDownloadStatus(DownloadManager.STATUS_SUCCESSFUL);
                 return;
             }
 
@@ -223,10 +244,6 @@ public class DownloadDispatcher extends Thread {
             writeDataToDestination(data, bytesRead, out);
             mCurrentBytes += bytesRead;
             //reportProgress(state);
-
-            System.out.println("######## downloaded " + mCurrentBytes + " for "
-                      + mUrl);
-
             //checkPausedOrCanceled(state);
         }
     }
@@ -245,12 +262,10 @@ public class DownloadDispatcher extends Thread {
 
     private void writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
     	
-    	System.out.println("######### writeDataToDestination bytesRead ######## "+bytesRead);
         boolean forceVerified = false;
         int loop = 1;
         while (true) {
             try {
-            	System.out.println("######### writing to Destination in Loop ######## "+loop);
             	loop++;
                 out.write(data, 0, bytesRead);
                 return;
@@ -268,31 +283,26 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    private void readResponseHeaders( HttpURLConnection conn){
-        String mContentDisposition = conn.getHeaderField("Content-Disposition");
-        String mContentLocation = conn.getHeaderField("Content-Location");
-        //String mMimeType = Intent.normalizeMimeType(conn.getContentType());
-
-        String mHeaderETag = conn.getHeaderField("ETag");
-
+    private int readResponseHeaders( HttpURLConnection conn){
         final String transferEncoding = conn.getHeaderField("Transfer-Encoding");
         long mContentLength;
         if (transferEncoding == null) {
             mContentLength = getHeaderFieldLong(conn, "Content-Length", -1);
+
         } else {
             System.out.println( "Ignoring Content-Length since Transfer-Encoding is also defined");
             mContentLength = -1;
         }
 
-//        state.mTotalBytes = state.mContentLength;
-//        mInfo.mTotalBytes = state.mContentLength;
-//
-//        final boolean noSizeInfo = state.mContentLength == -1
-//                && (transferEncoding == null || !transferEncoding.equalsIgnoreCase("chunked"));
-//        if (!mInfo.mNoIntegrity && noSizeInfo) {
-//            throw new StopRequestException(STATUS_CANNOT_RESUME,
-//                    "can't know size of download, giving up");
-//        }
+        System.out.println("######## Content-Length ######### "+mRequest.getDownloadId()+" : "+mContentLength);
+
+        if( mContentLength == -1
+                && (transferEncoding == null || !transferEncoding.equalsIgnoreCase("chunked")) ) {
+            System.out.println( "Ignoring Content-Length since Transfer-Encoding is also defined");
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     public long getHeaderFieldLong(URLConnection conn, String field, long defaultValue) {

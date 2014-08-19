@@ -2,6 +2,6 @@ package com.slim.downloadmanager;
 
 public interface DownloadStatusListener {
 	
-	void updateDownloadStatus( long id, int status, int progress);
-	
+	void updateDownloadStatus (int id, int status);
+	void updateDownloadProgress (int id, int progress);
 }

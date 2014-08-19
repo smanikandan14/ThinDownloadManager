@@ -4,12 +4,14 @@ public class SlimDownloadManager implements DownloadManager {
 
     private DownloadRequestQueue mRequestQueue;
     private static SlimDownloadManager mInstance = null;
-    
+
+    /** private default constructor **/
     private SlimDownloadManager() {    	
     	mRequestQueue = new DownloadRequestQueue();
     	mRequestQueue.start();
 	}
-    
+
+    /** Static method to access the singleton instance **/
     public static SlimDownloadManager getInstance() {
     	if (mInstance == null) {
     		mInstance = new SlimDownloadManager();
@@ -23,52 +25,43 @@ public class SlimDownloadManager implements DownloadManager {
      * ready to execute it and connectivity is available.
      *
      * @param request the parameters specifying this download
-     * @return an ID for the download, unique across the system.  This ID is used to make future
+     * @return an ID for the download, unique across the application.  This ID is used to make future
      * calls related to this download.
-	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException
      */
 	@Override
-	public int add(DownloadRequest request,
-			DownloadStatusListener listener) throws IllegalArgumentException {
+	public int add(DownloadRequest request) throws IllegalArgumentException {
 		if(request == null) { 
 			throw new IllegalArgumentException("DownloadRequest cannot be null");
 		}
 
-		if(listener == null) { 
-			throw new IllegalArgumentException("DownloadStatusListener cannot be null");
-		}
-
-		return mRequestQueue.add(request,listener);
+		return mRequestQueue.add(request);
 	}
 
 
 	@Override
-	public void cancel(int downloadId) {
-		// TODO Auto-generated method stub
+	public int cancel(int downloadId) {
+		return mRequestQueue.cancel(downloadId);
 		
 	}
 
 
 	@Override
 	public void cancelAll() {
-		// TODO Auto-generated method stub
-		
+        mRequestQueue.cancelAll();
 	}
 
 
 	@Override
 	public int query(int downloadId) {
-		// TODO Auto-generated method stub
-		return 0;
+		return mRequestQueue.query(downloadId);
 	}
 
 	@Override
 	public void release() {
 		if(mRequestQueue != null) {
-			//mRequestQueue.
 			mRequestQueue = null;
 		}
-		
 		mInstance = null;
 	}
 }
