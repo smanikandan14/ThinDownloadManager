@@ -1,7 +1,7 @@
 package com.slim.downloadmanager;
 
-import android.content.Context;
 import android.os.Process;
+import android.text.format.DateUtils;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -24,25 +24,35 @@ import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class DownloadDispatcher extends Thread {
 
-    /** The queue of requests to service. */
+    /** The queue of download requests to service. */
     private final BlockingQueue<DownloadRequest> mQueue;
 
-    /** Used for telling us to die. */
+    /** Used to tell the dispatcher to die. */
     private volatile boolean mQuit = false;
 
-	public static URL mUrl;
-	private static Context mContext;
+    /** Current Download request that this dispatcher is working **/
     private DownloadRequest mRequest;
+
+    private static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    private static final int HTTP_TEMP_REDIRECT = 307;
+
+    /** Connection & Socket timeout **/
+    private static final int DEFAULT_TIMEOUT = (int) (20 * DateUtils.SECOND_IN_MILLIS);
+
+    /** The buffer size used to stream the data */
+    public static final int BUFFER_SIZE = 4096;
+
+    private int mRedirectionCount = 0;
+    /**
+     * The maximum number of redirects.
+     */
+    public static final int MAX_REDIRECTS = 5; // can't be more than 7.
+
 
     public DownloadDispatcher(BlockingQueue<DownloadRequest> queue) {
         mQueue = queue;
     }
     
-    public void quit() {
-    	mQuit = true;
-    	interrupt();
-    }
-
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
@@ -50,10 +60,10 @@ public class DownloadDispatcher extends Thread {
     	while(true) {
     		try {
                 mRequest = mQueue.take();
-                mRequest.setDownloadState(DownloadManager.STATUS_STARTED);
+                mRedirectionCount = 0;
                 System.out.println("######## Request processed #######  "+mRequest.getDownloadId()+" : "+mRequest.getUri().toString());
                 updateDownloadStatus(DownloadManager.STATUS_STARTED);
-    			initiateDownload();
+                executeDownload(mRequest.getUri().toString());
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
@@ -64,105 +74,64 @@ public class DownloadDispatcher extends Thread {
     	}
     }
 
-    public void updateDownloadStatus(int downloadStatus) {
-        if(mRequest.getDownloadListener() != null) {
-            mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
-                    downloadStatus);
-        }
+    public void quit() {
+        mQuit = true;
+        interrupt();
     }
 
-    public void updateDownloadProgress(int progress) {
-        if(mRequest.getDownloadListener() != null) {
-            mRequest.getDownloadListener().updateDownloadProgress(mRequest.getDownloadId(),
-                    progress);
-        }
-    }
-
-	public void initiateDownload() {
-        /*PowerManager.WakeLock wakeLock = null;
-        final PowerManager pm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-
-        try {
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "NativeXDownloadManager");
-            //wakeLock.setWorkSource(new WorkSource());
-            wakeLock.acquire();
-            mUrl = new URL(request.getUri().toString());
-            executeDownload();
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }*/
-        executeDownload();
-	}
-	
-	private static int DEFAULT_TIMEOUT = 20000;
-	
-	private void executeDownload() {
-        try {
-            mUrl = new URL(mRequest.getUri().toString());
-        } catch(MalformedURLException e) {
-            updateDownloadStatus(DownloadManager.STATUS_FAILED);
-            return;
-        }
-        HttpURLConnection conn = null;
-        try {
-            //checkConnectivity();
-            conn = (HttpURLConnection) mUrl.openConnection();
-            conn.setInstanceFollowRedirects(false);
-            conn.setConnectTimeout(DEFAULT_TIMEOUT);
-            conn.setReadTimeout(DEFAULT_TIMEOUT);
-
-            final int responseCode = conn.getResponseCode();
-            switch (responseCode) {
-                case HTTP_OK:
-                    //if (state.mContinuingDownload) {
-                    //}
-                    if(readResponseHeaders(conn) == 1) {
-                        transferData(conn);
-                    } else {
-
-                    }
-                	break;
-                case HTTP_MOVED_PERM:
-                case HTTP_MOVED_TEMP:
-                case HTTP_SEE_OTHER:
-/*                case HTTP_TEMP_REDIRECT:
-                    final String location = conn.getHeaderField("Location");
-                    state.mUrl = new URL(state.mUrl, location);
-                    if (responseCode == HTTP_MOVED_PERM) {
-                        // Push updated URL back to database
-                        state.mRequestUri = state.mUrl.toString();
-                    }
-                    continue;
-
-                case HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
-                    throw new StopRequestException(
-                            STATUS_CANNOT_RESUME, "Requested range not satisfiable"); */
-
-                case HTTP_UNAVAILABLE:
-//                    parseRetryAfterHeaders(state, conn);
-//                    throw new StopRequestException(
-//                            HTTP_UNAVAILABLE, conn.getResponseMessage());
-
-                case HTTP_INTERNAL_ERROR:
-//                    throw new StopRequestException(
-//                            HTTP_INTERNAL_ERROR, conn.getResponseMessage());
-
-                default:
-//                    StopRequestException.throwUnhandledHttpError(
-//                            responseCode, conn.getResponseMessage());
-                    updateDownloadStatus(DownloadManager.STATUS_FAILED);
-                    mRequest.finish();
-                    break;
+    private void executeDownload(String downloadUrl) {
+        URL url = null;
+        while (mRedirectionCount++ < MAX_REDIRECTS) {
+            try {
+                url = new URL(downloadUrl);
+            } catch (MalformedURLException e) {
+                updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                return;
             }
-        } catch (IOException e) {
-            // Trouble with low-level sockets
-//            throw new StopRequestException(STATUS_HTTP_DATA_ERROR, e);
+            HttpURLConnection conn = null;
+            try {
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setInstanceFollowRedirects(false);
+                conn.setConnectTimeout(DEFAULT_TIMEOUT);
+                conn.setReadTimeout(DEFAULT_TIMEOUT);
 
-        } finally {
-            if (conn != null) conn.disconnect();
-        }
+                final int responseCode = conn.getResponseCode();
+                System.out.println("######## Connection Response code ####### " + responseCode);
+                switch (responseCode) {
+                    case HTTP_OK:
+                        System.out.println("######## HTTP_OK content location ####### ");
+                        if (readResponseHeaders(conn) == 1) {
+                            transferData(conn);
+                        } else {
+                            updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                        }
+                        return;
+                    case HTTP_MOVED_PERM:
+                    case HTTP_MOVED_TEMP:
+                    case HTTP_SEE_OTHER:
+                    case HTTP_TEMP_REDIRECT:
+                        final String location = conn.getHeaderField("Location");
+                        downloadUrl = location;
+                        continue;
 
-  //  throw new StopRequestException(STATUS_TOO_MANY_REDIRECTS, "Too many redirects");
+                    case HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
+                    case HTTP_UNAVAILABLE:
+                    case HTTP_INTERNAL_ERROR:
+                    default:
+                        updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                        break;
+                }
+            } catch(IOException e){
+                // Trouble with low-level sockets
+                //throw new StopRequestException(STATUS_HTTP_DATA_ERROR, e);
+            } finally{
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        } // End of while
+
+        updateDownloadStatus(DownloadManager.STATUS_FAILED);
 	}
 	
     private void transferData(HttpURLConnection conn) {
@@ -179,20 +148,18 @@ public class DownloadDispatcher extends Thread {
     		File destinationFile = new File(mRequest.getDestinationURI().getPath().toString());
     		
             try {
-                    out = new FileOutputStream(destinationFile, true);
-                    outFd = ((FileOutputStream) out).getFD();
+                out = new FileOutputStream(destinationFile, true);
+                outFd = ((FileOutputStream) out).getFD();
             } catch (IOException e) {
                 //throw new StopRequestException(STATUS_FILE_ERROR, e);
             	e.printStackTrace();
+                updateDownloadStatus(DownloadManager.STATUS_FAILED);
             }
 
-            // Start streaming data, periodically watch for pause/cancel
-            // commands and checking disk space as needed.
+            // Start streaming data
             transferData(in, out);
 
         } finally {
-
-            //IoUtils.closeQuietly(in);
         	try {
         		in.close();
         	} catch (IOException e) {
@@ -204,7 +171,6 @@ public class DownloadDispatcher extends Thread {
                 if (outFd != null) outFd.sync();
             } catch (IOException e) {
             } finally {
-                //IoUtils.closeQuietly(out);
             	try {
             		out.close();
             	} catch (IOException e) {
@@ -214,9 +180,7 @@ public class DownloadDispatcher extends Thread {
         }
     }
     
-    /** The buffer size used to stream the data */
-    public static final int BUFFER_SIZE = 4096;
-    static long mCurrentBytes; 
+    static long mCurrentBytes;
     
     private void transferData(InputStream in, OutputStream out) {
         final byte data[] = new byte[BUFFER_SIZE];
@@ -231,20 +195,18 @@ public class DownloadDispatcher extends Thread {
             }
             int bytesRead = readFromResponse( data, in);
 
-            updateDownloadProgress((int)mCurrentBytes);
+            int progress = (int)((mCurrentBytes * 100)/mContentLength);
+            updateDownloadProgress(progress);
 
             if (bytesRead == -1) { // success, end of stream already reached
-                //handleEndOfStream(state);
-            	System.out.println("######## end of stream #######  ");
                 updateDownloadStatus(DownloadManager.STATUS_SUCCESSFUL);
                 return;
             }
 
-            //state.mGotData = true;
             writeDataToDestination(data, bytesRead, out);
             mCurrentBytes += bytesRead;
+
             //reportProgress(state);
-            //checkPausedOrCanceled(state);
         }
     }
 
@@ -261,34 +223,24 @@ public class DownloadDispatcher extends Thread {
     }
 
     private void writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
-    	
-        boolean forceVerified = false;
-        int loop = 1;
         while (true) {
             try {
-            	loop++;
                 out.write(data, 0, bytesRead);
                 return;
             } catch (IOException ex) {
-                // TODO: better differentiate between DRM and disk failures
-                if (!forceVerified) {
-                    // couldn't write to file. are we out of space? check.
-                    //mStorageManager.verifySpace(mInfo.mDestination, state.mFilename, bytesRead);
-                    forceVerified = true;
-                } else {
-                    //throw new StopRequestException(Downloads.Impl.STATUS_FILE_ERROR,
-                           // "Failed to write data: " + ex);
-                }
+                //throw new StopRequestException(Downloads.Impl.STATUS_FILE_ERROR,
+                       // "Failed to write data: " + ex);
+                updateDownloadStatus(DownloadManager.STATUS_FAILED);
             }
         }
     }
 
+    long mContentLength;
     private int readResponseHeaders( HttpURLConnection conn){
         final String transferEncoding = conn.getHeaderField("Transfer-Encoding");
-        long mContentLength;
+
         if (transferEncoding == null) {
             mContentLength = getHeaderFieldLong(conn, "Content-Length", -1);
-
         } else {
             System.out.println( "Ignoring Content-Length since Transfer-Encoding is also defined");
             mContentLength = -1;
@@ -313,4 +265,23 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
+    public void updateDownloadStatus(int downloadStatus) {
+        mRequest.setDownloadState(downloadStatus);
+        if(mRequest.getDownloadListener() != null) {
+            mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
+                    downloadStatus);
+            if(downloadStatus == DownloadManager.STATUS_SUCCESSFUL ||
+                    downloadStatus == DownloadManager.STATUS_FAILED ||
+                    downloadStatus == DownloadManager.STATUS_NOT_FOUND) {
+                mRequest.finish();
+            }
+        }
+    }
+
+    public void updateDownloadProgress(int progress) {
+        if(mRequest.getDownloadListener() != null) {
+            mRequest.getDownloadListener().updateDownloadProgress(mRequest.getDownloadId(),
+                    progress);
+        }
+    }
 }

@@ -5,15 +5,19 @@ import android.net.Uri;
 public class DownloadRequest implements Comparable<DownloadRequest> {
 
 	private int mDownloadState;
-	private int mDownloadId;
-	private DownloadRequestQueue mRequestQueue;
-	private DownloadStatusListener mDownloadListener;
-	private Uri mUri;
-	private Uri mDestinationURI;
-	private boolean mRoamingAllowed = true;
+
+    private int mDownloadId;
+
+    private DownloadRequestQueue mRequestQueue;
+
+    private DownloadStatusListener mDownloadListener;
+
+    private Uri mUri;
+
+    private Uri mDestinationURI;
+
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
-    private int mAllowedNetworkTypes = ~0; // default to all network types allowed
 
     /**
      * Priority values.  Requests will be processed from higher priorities to
@@ -106,30 +110,6 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		this.mDestinationURI = mDestinationURI;
         return this;
 	}
-
-	public boolean isRoamingAllowed() {
-		return mRoamingAllowed;
-	}
-
-	public DownloadRequest setRoamingAllowed(boolean mRoamingAllowed) {
-		this.mRoamingAllowed = mRoamingAllowed;
-        return this;
-	}
-
-	public int getAllowedNetworkTypes() {
-		return mAllowedNetworkTypes;
-	}
-
-    /**
-     * Restrict the types of networks over which this download may proceed.  By default, all
-     * network types are allowed.
-     * @param flags any combination of the NETWORK_* bit flags.
-     * @return this object
-     */
-    public DownloadRequest setAllowedNetworkTypes(int flags) {
-        mAllowedNetworkTypes = flags;
-        return this;
-    }
 
     //Package-private methods.
 

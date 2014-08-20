@@ -18,15 +18,15 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Uri downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV/GlobalFiles/17272.mp4");
+        //Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo");
         //Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test.mp4");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setRoamingAllowed(true)
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
                     public void updateDownloadStatus(int id, int status) {
-                        System.out.println("###### updateDownloadStatus ######## "+id+" : "+status);
+                        System.out.println("###### updateDownloadStatus ######## "+id+" : "+getDownloadstatus(status));
                     }
 
                     @Override
@@ -41,27 +41,24 @@ public class MainActivity extends ActionBarActivity {
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV1/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test1.mp4");
         downloadRequest = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
-                .setRoamingAllowed(true);
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW);
 
-        int id2 = SlimDownloadManager.getInstance().add(downloadRequest);
-        System.out.println("###### ID 2 ######## "+id2);
+        //int id2 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //System.out.println("###### ID 2 ######## "+id2);
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV2/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test2.mp4");
         downloadRequest = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.NORMAL)
-                .setRoamingAllowed(true);
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.NORMAL);
 
-        int id3 = SlimDownloadManager.getInstance().add(downloadRequest);
-        System.out.println("###### ID 3 ######## "+id3);
+        //int id3 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //System.out.println("###### ID 3 ######## "+id3);
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test3.mp4");
         downloadRequest = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setRoamingAllowed(true);
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH);
 
-        int id4 = SlimDownloadManager.getInstance().add(downloadRequest);
-        System.out.println("###### ID 4 ######## "+id4);
+        //int id4 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //System.out.println("###### ID 4 ######## "+id4);
     }
 
 
@@ -82,5 +79,22 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getDownloadstatus(int status) {
+        if (status == 1) {
+            return "STATUS_PENDING";
+        } else if (status == 2) {
+            return "STATUS_STARTED";
+        } else if (status == 4) {
+            return "STATUS_RUNNING";
+        } else if (status == 8) {
+            return "STATUS_SUCCESSFUL";
+        } else if (status == 16) {
+            return "STATUS_FAILED";
+        } else if (status == 32) {
+            return "STATUS_NOT_FOUND";
+        }
+        return "EMPTY";
     }
 }

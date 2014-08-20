@@ -6,7 +6,7 @@ public class SlimDownloadManager implements DownloadManager {
     private static SlimDownloadManager mInstance = null;
 
     /** private default constructor **/
-    private SlimDownloadManager() {    	
+    private SlimDownloadManager() {
     	mRequestQueue = new DownloadRequestQueue();
     	mRequestQueue.start();
 	}
@@ -42,7 +42,6 @@ public class SlimDownloadManager implements DownloadManager {
 	@Override
 	public int cancel(int downloadId) {
 		return mRequestQueue.cancel(downloadId);
-		
 	}
 
 

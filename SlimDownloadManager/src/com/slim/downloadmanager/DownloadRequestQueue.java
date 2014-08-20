@@ -23,7 +23,7 @@ public class DownloadRequestQueue {
 
 
 	/** The download dispatchers */
-	DownloadDispatcher[] mDownloadDispatchers;
+	private DownloadDispatcher[] mDownloadDispatchers;
 
 	/** Used for generating monotonically-increasing sequence numbers for requests. */
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
@@ -34,6 +34,18 @@ public class DownloadRequestQueue {
 	public DownloadRequestQueue() {
 		mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
 	}
+
+    public void start() {
+        stop();  // Make sure any currently running dispatchers are stopped.
+
+        // Create download dispatchers (and corresponding threads) up to the pool size.
+        for (int i = 0; i < mDownloadDispatchers.length; i++) {
+            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mDownloadQueue);
+            mDownloadDispatchers[i] = networkDispatcher;
+            networkDispatcher.start();
+        }
+    }
+
 
     // Package-private methods
     /**
@@ -71,35 +83,6 @@ public class DownloadRequestQueue {
         return DownloadManager.STATUS_NOT_FOUND;
     }
 
-    void start() {
-        stop();  // Make sure any currently running dispatchers are stopped.
-    
-        // Create download dispatchers (and corresponding threads) up to the pool size.
-        for (int i = 0; i < mDownloadDispatchers.length; i++) {
-            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mDownloadQueue);
-            mDownloadDispatchers[i] = networkDispatcher;
-            networkDispatcher.start();
-        }
-    }
-
-    /**
-     * Stops download dispatchers.
-     */
-    void stop() {
-		for (int i = 0; i < mDownloadDispatchers.length; i++) {
-            if (mDownloadDispatchers[i] != null) {
-            	mDownloadDispatchers[i].quit();
-            }
-        }
-    }
-    
-    /**
-     * Gets a sequence number.
-     */
-    int getDownloadId() {
-        return mSequenceGenerator.incrementAndGet();
-    }
-
     /**
      * Cancel all the dispatchers in work and also stops the dispatchers.
      */
@@ -132,7 +115,6 @@ public class DownloadRequestQueue {
     }
 
     void finish(DownloadRequest request) {
-        System.out.println("####### DownloadRequest Queue finish ####### "+request.getDownloadId());
         //Remove from the queue.
         synchronized (mCurrentRequests) {
             mCurrentRequests.remove(request);
@@ -141,4 +123,23 @@ public class DownloadRequestQueue {
         System.out.println("####### DownloadRequest Queue after finish ####### "+mCurrentRequests.size());
     }
 
+    // Private methods.
+
+    /**
+     * Stops download dispatchers.
+     */
+    private void stop() {
+        for (int i = 0; i < mDownloadDispatchers.length; i++) {
+            if (mDownloadDispatchers[i] != null) {
+                mDownloadDispatchers[i].quit();
+            }
+        }
+    }
+
+    /**
+     * Gets a sequence number.
+     */
+    private int getDownloadId() {
+        return mSequenceGenerator.incrementAndGet();
+    }
 }
