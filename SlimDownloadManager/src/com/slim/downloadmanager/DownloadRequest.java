@@ -4,20 +4,29 @@ import android.net.Uri;
 
 public class DownloadRequest implements Comparable<DownloadRequest> {
 
+    /** Tells the current download state of this request */
 	private int mDownloadState;
 
+    /** Download Id assigned to this request */
     private int mDownloadId;
 
-    private DownloadRequestQueue mRequestQueue;
-
-    private DownloadStatusListener mDownloadListener;
-
+    /** The URI resource that this request is to download */
     private Uri mUri;
 
+    /** The destination path on the device where the downloaded files needs to be put
+     * It can be either External Directory ( SDcard ) or
+     * internal app cache or files directory.
+     * For using external SDCard access, application should have
+     * this permission android.permission.WRITE_EXTERNAL_STORAGE declared.
+     */
     private Uri mDestinationURI;
 
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
+
+    private DownloadRequestQueue mRequestQueue;
+
+    private DownloadStatusListener mDownloadListener;
 
     /**
      * Priority values.  Requests will be processed from higher priorities to
@@ -52,6 +61,11 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return mPriority;
     }
 
+    /**
+     * Set the {@link Priority}  of this request;
+     * @param priority
+     * @return request
+     */
     public DownloadRequest setPriority(Priority priority) {
     	mPriority = priority;
         return this;
@@ -66,7 +80,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     }
 
     /**
-     * Sets the sequence number of this request.  Used by {@link RequestQueue}.
+     * Sets the download Id of this request.  Used by {@link DownloadRequestQueue}.
      */
     final void setDownloadId(int downloadId) {
         mDownloadId = downloadId;
@@ -88,8 +102,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		return mDownloadListener;
 	}
 
-	public DownloadRequest setDownloadListener(DownloadStatusListener mDownloadListener) {
-		this.mDownloadListener = mDownloadListener;
+	public DownloadRequest setDownloadListener(DownloadStatusListener downloadListener) {
+		this.mDownloadListener = downloadListener;
         return this;
 	}
 
@@ -106,8 +120,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		return mDestinationURI;
 	}
 
-	public DownloadRequest setDestinationURI(Uri mDestinationURI) {
-		this.mDestinationURI = mDestinationURI;
+	public DownloadRequest setDestinationURI(Uri destinationURI) {
+		this.mDestinationURI = destinationURI;
         return this;
 	}
 

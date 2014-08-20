@@ -71,6 +71,11 @@ public class DownloadRequestQueue {
 		return downloadId;		
 	}
 
+    /**
+     * Returns the current download state for a download request.
+     * @param downloadId
+     * @return
+     */
     int query(int downloadId) {
         synchronized (mCurrentRequests) {
             for(DownloadRequest request: mCurrentRequests) {

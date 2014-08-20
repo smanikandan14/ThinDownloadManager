@@ -32,6 +32,35 @@ public interface DownloadManager {
      */
     public final static int STATUS_NOT_FOUND = 1 << 5;
 
+    /**
+     * Error code when the download has completed with an error that doesn't fit
+     * under any other error code.
+     */
+    public final static int ERROR_UNKNOWN = 1000;
+
+    /**
+     * Error code when writing download content to the destination file.
+     */
+    public final static int ERROR_FILE_ERROR = 1001;
+
+    /**
+     * Error code when an HTTP code was received that download manager
+     * can't handle.
+     */
+    public final static int ERROR_UNHANDLED_HTTP_CODE = 1002;
+
+    /**
+     * Error code when an error receiving or processing data occurred at
+     * the HTTP level.
+     */
+    public final static int ERROR_HTTP_DATA_ERROR = 1004;
+
+    /**
+     * Error code when there were too many redirects.
+     */
+    public final static int ERROR_TOO_MANY_REDIRECTS = 1005;
+
+
     public int add( DownloadRequest request);
 
 	public int cancel(int downloadId);

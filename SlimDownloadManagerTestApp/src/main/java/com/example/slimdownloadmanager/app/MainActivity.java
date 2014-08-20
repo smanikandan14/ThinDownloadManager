@@ -25,12 +25,12 @@ public class MainActivity extends ActionBarActivity {
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
-                    public void updateDownloadStatus(int id, int status) {
+                    public void onDownloadComplete(int id, int status) {
                         System.out.println("###### updateDownloadStatus ######## "+id+" : "+getDownloadstatus(status));
                     }
 
                     @Override
-                    public void updateDownloadProgress(int id, int progress) {
+                    public void onProgress(int id, int progress) {
                         System.out.println("######  updateDownloadProgress ######## "+id+" : "+progress);
                     }
                 });

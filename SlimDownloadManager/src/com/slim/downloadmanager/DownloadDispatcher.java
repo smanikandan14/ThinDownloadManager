@@ -30,25 +30,27 @@ public class DownloadDispatcher extends Thread {
     /** Used to tell the dispatcher to die. */
     private volatile boolean mQuit = false;
 
-    /** Current Download request that this dispatcher is working **/
+    /** Current Download request that this dispatcher is working */
     private DownloadRequest mRequest;
 
-    private static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
-    private static final int HTTP_TEMP_REDIRECT = 307;
-
-    /** Connection & Socket timeout **/
+    /** Connection & Socket timeout */
     private static final int DEFAULT_TIMEOUT = (int) (20 * DateUtils.SECOND_IN_MILLIS);
 
     /** The buffer size used to stream the data */
     public static final int BUFFER_SIZE = 4096;
 
+    /** How many times redirects happened during a download request. */
     private int mRedirectionCount = 0;
-    /**
-     * The maximum number of redirects.
-     */
+
+    /** The maximum number of redirects. */
     public static final int MAX_REDIRECTS = 5; // can't be more than 7.
 
+    private static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    private static final int HTTP_TEMP_REDIRECT = 307;
 
+    private long mContentLength;
+
+    /** Constructor take the dependency (DownloadRequest queue) that all the Dispatcher needs */
     public DownloadDispatcher(BlockingQueue<DownloadRequest> queue) {
         mQueue = queue;
     }
@@ -62,7 +64,7 @@ public class DownloadDispatcher extends Thread {
                 mRequest = mQueue.take();
                 mRedirectionCount = 0;
                 System.out.println("######## Request processed #######  "+mRequest.getDownloadId()+" : "+mRequest.getUri().toString());
-                updateDownloadStatus(DownloadManager.STATUS_STARTED);
+                updateDownloadState(DownloadManager.STATUS_STARTED);
                 executeDownload(mRequest.getUri().toString());
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
@@ -85,7 +87,7 @@ public class DownloadDispatcher extends Thread {
             try {
                 url = new URL(downloadUrl);
             } catch (MalformedURLException e) {
-                updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                updateDownloadComplete();
                 return;
             }
             HttpURLConnection conn = null;
@@ -103,7 +105,7 @@ public class DownloadDispatcher extends Thread {
                         if (readResponseHeaders(conn) == 1) {
                             transferData(conn);
                         } else {
-                            updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                            updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE,"Can't know size of download, giving up");
                         }
                         return;
                     case HTTP_MOVED_PERM:
@@ -118,7 +120,7 @@ public class DownloadDispatcher extends Thread {
                     case HTTP_UNAVAILABLE:
                     case HTTP_INTERNAL_ERROR:
                     default:
-                        updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                        updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE,"Can't know size of download, giving up");
                         break;
                 }
             } catch(IOException e){
@@ -131,7 +133,7 @@ public class DownloadDispatcher extends Thread {
             }
         } // End of while
 
-        updateDownloadStatus(DownloadManager.STATUS_FAILED);
+        updateDownloadFailed(DownloadManager.ERROR_TOO_MANY_REDIRECTS,"Too many redirects, giving up");
 	}
 	
     private void transferData(HttpURLConnection conn) {
@@ -151,9 +153,8 @@ public class DownloadDispatcher extends Thread {
                 out = new FileOutputStream(destinationFile, true);
                 outFd = ((FileOutputStream) out).getFD();
             } catch (IOException e) {
-                //throw new StopRequestException(STATUS_FILE_ERROR, e);
             	e.printStackTrace();
-                updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,"Can't know size of download, giving up");
             }
 
             // Start streaming data
@@ -186,7 +187,6 @@ public class DownloadDispatcher extends Thread {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
         mRequest.setDownloadState(DownloadManager.STATUS_RUNNING);
-        updateDownloadStatus(DownloadManager.STATUS_RUNNING);
 
         for (;;) {
             if (mRequest.isCanceled()) {
@@ -199,14 +199,12 @@ public class DownloadDispatcher extends Thread {
             updateDownloadProgress(progress);
 
             if (bytesRead == -1) { // success, end of stream already reached
-                updateDownloadStatus(DownloadManager.STATUS_SUCCESSFUL);
+                updateDownloadComplete();
                 return;
             }
 
             writeDataToDestination(data, bytesRead, out);
             mCurrentBytes += bytesRead;
-
-            //reportProgress(state);
         }
     }
 
@@ -228,14 +226,11 @@ public class DownloadDispatcher extends Thread {
                 out.write(data, 0, bytesRead);
                 return;
             } catch (IOException ex) {
-                //throw new StopRequestException(Downloads.Impl.STATUS_FILE_ERROR,
-                       // "Failed to write data: " + ex);
-                updateDownloadStatus(DownloadManager.STATUS_FAILED);
+                updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE,"Can't know size of download, giving up");
             }
         }
     }
 
-    long mContentLength;
     private int readResponseHeaders( HttpURLConnection conn){
         final String transferEncoding = conn.getHeaderField("Transfer-Encoding");
 
@@ -246,11 +241,8 @@ public class DownloadDispatcher extends Thread {
             mContentLength = -1;
         }
 
-        System.out.println("######## Content-Length ######### "+mRequest.getDownloadId()+" : "+mContentLength);
-
         if( mContentLength == -1
                 && (transferEncoding == null || !transferEncoding.equalsIgnoreCase("chunked")) ) {
-            System.out.println( "Ignoring Content-Length since Transfer-Encoding is also defined");
             return -1;
         } else {
             return 1;
@@ -265,22 +257,30 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    public void updateDownloadStatus(int downloadStatus) {
-        mRequest.setDownloadState(downloadStatus);
+    public void updateDownloadState(int state) {
+        mRequest.setDownloadState(state);
+    }
+
+    public void updateDownloadComplete() {
+        mRequest.setDownloadState(DownloadManager.STATUS_SUCCESSFUL);
         if(mRequest.getDownloadListener() != null) {
-            mRequest.getDownloadListener().updateDownloadStatus(mRequest.getDownloadId(),
-                    downloadStatus);
-            if(downloadStatus == DownloadManager.STATUS_SUCCESSFUL ||
-                    downloadStatus == DownloadManager.STATUS_FAILED ||
-                    downloadStatus == DownloadManager.STATUS_NOT_FOUND) {
-                mRequest.finish();
-            }
+            mRequest.getDownloadListener().onDownloadComplete(mRequest.getDownloadId());
+            mRequest.finish();
+        }
+    }
+
+    public void updateDownloadFailed(int errorCode, String errorMsg) {
+        mRequest.setDownloadState(DownloadManager.STATUS_FAILED);
+        if(mRequest.getDownloadListener() != null) {
+            mRequest.getDownloadListener().onDownloadFailed(
+                    mRequest.getDownloadId(),errorCode,errorMsg);
+            mRequest.finish();
         }
     }
 
     public void updateDownloadProgress(int progress) {
         if(mRequest.getDownloadListener() != null) {
-            mRequest.getDownloadListener().updateDownloadProgress(mRequest.getDownloadId(),
+            mRequest.getDownloadListener().onProgress(mRequest.getDownloadId(),
                     progress);
         }
     }

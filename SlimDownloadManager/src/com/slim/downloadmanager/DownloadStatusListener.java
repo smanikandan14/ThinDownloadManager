@@ -1,7 +1,7 @@
 package com.slim.downloadmanager;
 
 public interface DownloadStatusListener {
-	
-	void updateDownloadStatus (int id, int status);
-	void updateDownloadProgress (int id, int progress);
+	void onDownloadComplete (int id);
+    void onDownloadFailed (int id, int errorCode, String errorMessage);
+	void onProgress (int id, int progress);
 }
