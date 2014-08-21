@@ -98,7 +98,6 @@ public class DownloadDispatcher extends Thread {
         HttpURLConnection conn = null;
 
         try {
-            System.out.println("####### ExecuteDownload url ######## "+url.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(false);
             conn.setConnectTimeout(DEFAULT_TIMEOUT);
