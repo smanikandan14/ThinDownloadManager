@@ -1,4 +1,12 @@
-package com.slim.downloadmanager;
+package com.thin.downloadmanager;
+
+import com.thin.downloadmanager.DownloadRequest;
+
+
+
+import com.thin.downloadmanager.DownloadDispatcher;
+import com.thin.downloadmanager.DownloadManager;
+import com.thin.downloadmanager.DownloadRequest;
 
 import java.util.HashSet;
 import java.util.Set;

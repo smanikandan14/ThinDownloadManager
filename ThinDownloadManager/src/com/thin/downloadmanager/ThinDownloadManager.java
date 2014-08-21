@@ -1,20 +1,20 @@
-package com.slim.downloadmanager;
+package com.thin.downloadmanager;
 
-public class SlimDownloadManager implements DownloadManager {
+public class ThinDownloadManager implements DownloadManager {
 
     private DownloadRequestQueue mRequestQueue;
-    private static SlimDownloadManager mInstance = null;
+    private static ThinDownloadManager mInstance = null;
 
     /** private default constructor **/
-    private SlimDownloadManager() {
+    private ThinDownloadManager() {
     	mRequestQueue = new DownloadRequestQueue();
     	mRequestQueue.start();
 	}
 
     /** Static method to access the singleton instance **/
-    public static SlimDownloadManager getInstance() {
+    public static ThinDownloadManager getInstance() {
     	if (mInstance == null) {
-    		mInstance = new SlimDownloadManager();
+    		mInstance = new ThinDownloadManager();
     	}
     	
     	return mInstance;

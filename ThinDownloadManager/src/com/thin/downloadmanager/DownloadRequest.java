@@ -1,4 +1,4 @@
-package com.slim.downloadmanager;
+package com.thin.downloadmanager;
 
 import android.net.Uri;
 

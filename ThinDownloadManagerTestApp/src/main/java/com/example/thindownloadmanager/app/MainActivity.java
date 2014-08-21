@@ -6,9 +6,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.slim.downloadmanager.DownloadRequest;
-import com.slim.downloadmanager.DownloadStatusListener;
-import com.slim.downloadmanager.SlimDownloadManager;
+import com.thin.downloadmanager.DownloadRequest;
+import com.thin.downloadmanager.DownloadStatusListener;
+import com.thin.downloadmanager.ThinDownloadManager;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -40,7 +40,7 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
 
-        int id1 = SlimDownloadManager.getInstance().add(downloadRequest);
+        int id1 = ThinDownloadManager.getInstance().add(downloadRequest);
         System.out.println("###### ID 1 ######## "+id1);
 
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV1/GlobalFiles/17272.mp4");

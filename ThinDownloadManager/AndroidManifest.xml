@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.slim.downloadmanager"
+    package="com.thin.downloadmanager"
     android:versionCode="1"
     android:versionName="1.0" >
 

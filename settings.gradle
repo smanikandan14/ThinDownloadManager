@@ -1,1 +1,1 @@
-include ':SlimDownloadManager', ':SlimDownloadManagerTestApp'
+include ':ThinDownloadManager', ':ThinDownloadManagerTestApp'
