@@ -17,21 +17,26 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Uri downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV/GlobalFiles/17272.mp4");
-        //Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo");
+        //Uri downloadUri = Uri.parse("http://mobile-video-origin.o22ffercdn.com/DEV/GlobalFiles/17272.mp4");
+        Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         //Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test.mp4");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
-                    public void onDownloadComplete(int id, int status) {
-                        System.out.println("###### updateDownloadStatus ######## "+id+" : "+getDownloadstatus(status));
+                    public void onDownloadComplete(int id) {
+                        System.out.println("###### onDownloadComplete ######## "+id);
+                    }
+
+                    @Override
+                    public void onDownloadFailed(int id, int errorCode, String errorMessage) {
+                        System.out.println("###### onDownloadFailed ######## "+id+" : "+errorCode+" : "+errorMessage);
                     }
 
                     @Override
                     public void onProgress(int id, int progress) {
-                        System.out.println("######  updateDownloadProgress ######## "+id+" : "+progress);
+                        System.out.println("######  onProgress ######## "+id+" : "+progress);
                     }
                 });
 

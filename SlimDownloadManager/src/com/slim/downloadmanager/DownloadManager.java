@@ -33,12 +33,6 @@ public interface DownloadManager {
     public final static int STATUS_NOT_FOUND = 1 << 5;
 
     /**
-     * Error code when the download has completed with an error that doesn't fit
-     * under any other error code.
-     */
-    public final static int ERROR_UNKNOWN = 1000;
-
-    /**
      * Error code when writing download content to the destination file.
      */
     public final static int ERROR_FILE_ERROR = 1001;
@@ -59,6 +53,16 @@ public interface DownloadManager {
      * Error code when there were too many redirects.
      */
     public final static int ERROR_TOO_MANY_REDIRECTS = 1005;
+
+    /**
+     * Error code when size of the file is unknown.
+     */
+    public final static int ERROR_DOWNLOAD_SIZE_UNKNOWN = 1006;
+
+    /**
+     * Error code when passed URI is malformed.
+     */
+    public final static int ERROR_MALFORMED_URI = 1007;
 
 
     public int add( DownloadRequest request);
