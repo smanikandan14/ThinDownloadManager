@@ -14,9 +14,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
   
 
 ##Usuage
-#### **DownloadStatusListener**
+####**DownloadStatusListener**
   * Provides call back option to know when the download is completed, when download failed and reaso for failure, and to know the progress of the download.
-  ``` java
+``` java
     //Callback when download is successfully completed
     void onDownloadComplete (int id);
 
@@ -25,9 +25,11 @@ Thin DownloadManager is an android library primary to download files and to avoi
     void onDownloadFailed (int id, int errorCode, String errorMessage);
 
     //Callback provides download progress
-	void onProgress (int id, int progress);
+	void onProgress (int id, int progress); 
+	
 ```
-#### **DownloadRequest**
+
+####**DownloadRequest**
   * Takes all the necessary information required for download.
   * Download URI, Destination URI.
   * Priority for request. HIGH,MEDIUM,LOW
@@ -55,8 +57,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
                 });
 
      ```
-#### **ThinDownloadManager** 
- * You can pass the thread pool size as an argument in the constructor. Size should be in range 1 - 4. If no argument is passed the thread pool size is 1.
+
+####**ThinDownloadManager** 
+  * You can pass the thread pool size as an argument in the constructor. Size should be in range 1 - 4. If no argument is passed the thread pool size is 1.
   	``` java
     private ThinDownloadManager downloadManager;
     private static final int DOWNLOAD_THREAD_POOL_SIZE = 2;
@@ -69,13 +72,24 @@ Thin DownloadManager is an android library primary to download files and to avoi
 ```
   
   * add( DownloadRequest request);
+   	```java
+   	int downloadId = downloadManager.add(downloadRequest);
+   	```
 
   * cancel(int downloadId);
+  	```java
+  	int status = downloadManager.cancel(downloadId);
+  	```
 
   * cancelAll();
+  	```java
+  	downloadManager.cancelAll();
+  	```
 
   * int query(int downloadId);	
-	
+  	```java
+  	int status = downloadManager.query(downloadId);
+  	```
   * void release();
 
 
