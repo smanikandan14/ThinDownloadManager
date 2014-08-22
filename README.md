@@ -1,7 +1,7 @@
 ThinDownloadManager
 ===================
 
-Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission if you are using Android provided DownloadManager in your application. 
+Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission when using Android provided DownloadManager in your application. 
 
 
 ##Why ?
@@ -14,9 +14,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
   
 
 ##Usuage
-#### **DownloadStatusListener**
+####**DownloadStatusListener**
   * Provides call back option to know when the download is completed, when download failed and reaso for failure, and to know the progress of the download.
-  ``` java
+``` java
     //Callback when download is successfully completed
     void onDownloadComplete (int id);
 
@@ -25,12 +25,14 @@ Thin DownloadManager is an android library primary to download files and to avoi
     void onDownloadFailed (int id, int errorCode, String errorMessage);
 
     //Callback provides download progress
-	void onProgress (int id, int progress);
+	void onProgress (int id, int progress); 
+	
 ```
-#### **DownloadRequest**
+
+####**DownloadRequest**
   * Takes all the necessary information required for download.
   * Download URI, Destination URI.
-  * Priority for request. HIGH,MEDIUM,LOW
+  * Priority for request. HIGH,MEDIUM,LOW.
   * Takes Callback listener *DownloadStatusListener*
      ``` java
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
@@ -55,8 +57,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
                 });
 
      ```
-#### **ThinDownloadManager** 
- * You can pass the thread pool size as an argument in the constructor. Size should be in range 1 - 4. If no argument is passed the thread pool size is 1.
+
+####**ThinDownloadManager** 
+  * You can pass the thread pool size as an argument in the constructor. Size should be in range 1 - 4. If no argument is passed the thread pool size is 1.
   	``` java
     private ThinDownloadManager downloadManager;
     private static final int DOWNLOAD_THREAD_POOL_SIZE = 2;
@@ -68,22 +71,53 @@ Thin DownloadManager is an android library primary to download files and to avoi
     ....
 ```
   
-  * add( DownloadRequest request);
+  * To start a download use *add( DownloadRequest request)*
+   	```java
+   	int downloadId = downloadManager.add(downloadRequest);
+   	```
 
-  * cancel(int downloadId);
+  * To cancel a particular download use *cancel(int downloadId)* by passing download id. 
+  	- Returns 1 if successfull cancelled.
+  	- Returns -1 if supplied download id is not found.
+  	
+  	```java
+  	int status = downloadManager.cancel(downloadId);
+  	```
 
-  * cancelAll();
+  * To Cancel all running requests use *cancelAll()*
+  	```java
+  	downloadManager.cancelAll();
+  	```
 
-  * int query(int downloadId);	
-	
-  * void release();
+  * To query for a particular download use *query(int downloadId)*
+  
+    The possible status could be
+  	- STATUS_PENDING
+  	- STATUS_STARTED
+  	- STATUS_RUNNING
+  	
+  	```java
+  	int status = downloadManager.query(downloadId);
+  	```
+  * To release all the resources used by download manager use *release()*.
+  	
+  	```java
+  	downloadManager.release();
+  	```
 
 
 ##No Permissions Required
-  * unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
+  * Unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Download
-
+* Clone and include as ThinDownloadManager project as library dependency.
+* Download the jar file include in your project. 
+* Gradle 
+```java
+dependencies {
+    compile 'com.mani:thindownloadmanager:1.0.0'
+}
+```
 ##License
 
 
