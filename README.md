@@ -76,7 +76,10 @@ Thin DownloadManager is an android library primary to download files and to avoi
    	int downloadId = downloadManager.add(downloadRequest);
    	```
 
-  * To cancel a particular download use *cancel(int downloadId)* by passing download id
+  * To cancel a particular download use *cancel(int downloadId)* by passing download id. 
+  	- Returns 1 if successfull cancelled.
+  	- Returns -1 if supplied download id is not found.
+  	
   	```java
   	int status = downloadManager.cancel(downloadId);
   	```
@@ -87,6 +90,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	```
 
   * To query for a particular download use *query(int downloadId)*
+  
     The possible status could be
   	- STATUS_PENDING
   	- STATUS_STARTED
@@ -96,6 +100,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	int status = downloadManager.query(downloadId);
   	```
   * To release all the resources used by download manager use *release()*
+  	```java
+  	downloadManager.release();
+  	```
 
 
 ##No Permissions Required
