@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DownloadRequestQueue {
 
-	/** Number of network request dispatcher threads to start. */
+	/** Specifies default number of download dispatcher threads. */
     private static final int DEFAULT_DOWNLOAD_THREAD_POOL_SIZE = 1;
 
     /**
@@ -39,8 +39,12 @@ public class DownloadRequestQueue {
     /**
      * Creates the download dispatchers workers pool.
      */
-	public DownloadRequestQueue() {
-		mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
+	public DownloadRequestQueue(int threadPoolSize) {
+        if(threadPoolSize >0 && threadPoolSize <= 4) {
+            mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
+        } else {
+            mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
+        }
 	}
 
     public void start() {
@@ -55,7 +59,7 @@ public class DownloadRequestQueue {
     }
 
 
-    // Package-private methods
+    // Package-Private methods.
     /**
      * Generates a download id for the request and adds the download request to the
      * download request queue for the dispatchers pool to act on immediately.
@@ -132,10 +136,21 @@ public class DownloadRequestQueue {
         synchronized (mCurrentRequests) {
             mCurrentRequests.remove(request);
         }
-
-        System.out.println("####### DownloadRequest Queue after finish ####### "+mCurrentRequests.size());
     }
 
+    /**
+     * Cancels all the pending & running requests and releases all the dispatchers.
+     */
+    void release() {
+        cancelAll();
+        if(mDownloadDispatchers != null) {
+            for (int i = 0; i < mDownloadDispatchers.length; i++) {
+                mDownloadDispatchers[i] = null;
+            }
+            mDownloadDispatchers = null;
+        }
+
+    }
     // Private methods.
 
     /**

@@ -13,10 +13,14 @@ import com.thin.downloadmanager.ThinDownloadManager;
 
 public class MainActivity extends ActionBarActivity {
 
+    private ThinDownloadManager downloadManager;
+    private static final int DOWNLOAD_THREAD_POOL_SIZE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
         //Uri downloadUri = Uri.parse("http://mobile-video-origin.o22ffercdn.com/DEV/GlobalFiles/17272.mp4");
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         //Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test.mp4");
@@ -40,7 +44,7 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
 
-        int id1 = ThinDownloadManager.getInstance().add(downloadRequest);
+        int id1 = downloadManager.add(downloadRequest);
         System.out.println("###### ID 1 ######## "+id1);
 
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV1/GlobalFiles/17272.mp4");
@@ -48,21 +52,21 @@ public class MainActivity extends ActionBarActivity {
         downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW);
 
-        //int id2 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //int id2 = downloadManager.add(downloadRequest);
         //System.out.println("###### ID 2 ######## "+id2);
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV2/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test2.mp4");
         downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.NORMAL);
 
-        //int id3 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //int id3 = downloadManager.add(downloadRequest);
         //System.out.println("###### ID 3 ######## "+id3);
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test3.mp4");
         downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH);
 
-        //int id4 = SlimDownloadManager.getInstance().add(downloadRequest);
+        //int id4 = downloadManager.add(downloadRequest);
         //System.out.println("###### ID 4 ######## "+id4);
     }
 

@@ -2,24 +2,17 @@ package com.thin.downloadmanager;
 
 public class ThinDownloadManager implements DownloadManager {
 
+    /** Download request queue takes care of handling the request based on priority. */
     private DownloadRequestQueue mRequestQueue;
-    private static ThinDownloadManager mInstance = null;
 
-    /** private default constructor **/
-    private ThinDownloadManager() {
-    	mRequestQueue = new DownloadRequestQueue();
+    /** Constructor taking MAX THREAD POOL SIZE  Allows maximum of 4 threads.
+     * Any number higher than four or less than one wont be respected.
+     **/
+    public ThinDownloadManager(int threadPoolSize) {
+    	mRequestQueue = new DownloadRequestQueue(threadPoolSize);
     	mRequestQueue.start();
 	}
 
-    /** Static method to access the singleton instance **/
-    public static ThinDownloadManager getInstance() {
-    	if (mInstance == null) {
-    		mInstance = new ThinDownloadManager();
-    	}
-    	
-    	return mInstance;
-    }
-    
 	/**
      * Add a new download.  The download will start automatically once the download manager is
      * ready to execute it and connectivity is available.
@@ -59,9 +52,9 @@ public class ThinDownloadManager implements DownloadManager {
 	@Override
 	public void release() {
 		if(mRequestQueue != null) {
+            mRequestQueue.release();
 			mRequestQueue = null;
 		}
-		mInstance = null;
 	}
 }
 
