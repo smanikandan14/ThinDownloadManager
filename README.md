@@ -71,30 +71,35 @@ Thin DownloadManager is an android library primary to download files and to avoi
     ....
 ```
   
-  * add( DownloadRequest request);
+  * To start a download use *add( DownloadRequest request)*
    	```java
    	int downloadId = downloadManager.add(downloadRequest);
    	```
 
-  * cancel(int downloadId);
+  * To cancel a particular download use *cancel(int downloadId)* by passing download id
   	```java
   	int status = downloadManager.cancel(downloadId);
   	```
 
-  * cancelAll();
+  * To Cancel all running requests use *cancelAll()*
   	```java
   	downloadManager.cancelAll();
   	```
 
-  * int query(int downloadId);	
+  * To query for a particular download use *query(int downloadId)*
+    The possible status could be
+  	- STATUS_PENDING
+  	- STATUS_STARTED
+  	- STATUS_RUNNING
+  	
   	```java
   	int status = downloadManager.query(downloadId);
   	```
-  * void release();
+  * To release all the resources used by download manager use *release()*
 
 
 ##No Permissions Required
-  * unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
+  * Unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Download
 
