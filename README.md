@@ -1,7 +1,7 @@
 ThinDownloadManager
 ===================
 
-Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission if you are using Android provided DownloadManager in your application. 
+Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission when using Android provided DownloadManager in your application. 
 
 
 ##Why ?
@@ -110,7 +110,14 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * Unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Download
-
+* Clone and include as ThinDownloadManager project as library dependency.
+* Download the jar file include in your project. 
+* Gradle 
+```java
+dependencies {
+    compile 'com.mani:thindownloadmanager:1.0.0'
+}
+```
 ##License
 
 
