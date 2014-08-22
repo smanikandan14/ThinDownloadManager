@@ -32,7 +32,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 ####**DownloadRequest**
   * Takes all the necessary information required for download.
   * Download URI, Destination URI.
-  * Priority for request. HIGH,MEDIUM,LOW
+  * Priority for request. HIGH,MEDIUM,LOW.
   * Takes Callback listener *DownloadStatusListener*
      ``` java
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
@@ -99,7 +99,8 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	```java
   	int status = downloadManager.query(downloadId);
   	```
-  * To release all the resources used by download manager use *release()*
+  * To release all the resources used by download manager use *release()*.
+  	
   	```java
   	downloadManager.release();
   	```
