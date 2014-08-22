@@ -1,13 +1,5 @@
 package com.thin.downloadmanager;
 
-import com.thin.downloadmanager.DownloadRequest;
-
-
-
-import com.thin.downloadmanager.DownloadDispatcher;
-import com.thin.downloadmanager.DownloadManager;
-import com.thin.downloadmanager.DownloadRequest;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -30,8 +22,8 @@ public class DownloadRequestQueue {
         new PriorityBlockingQueue<DownloadRequest>();
 
 
-	/** The download dispatchers */
-	private DownloadDispatcher[] mDownloadDispatchers;
+    /** The download dispatchers */
+    private DownloadDispatcher[] mDownloadDispatchers;
 
 	/** Used for generating monotonically-increasing sequence numbers for requests. */
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
@@ -52,7 +44,7 @@ public class DownloadRequestQueue {
         } else {
             mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
         }
-	}
+    }
 
     public void start() {
         stop();  // Make sure any currently running dispatchers are stopped.

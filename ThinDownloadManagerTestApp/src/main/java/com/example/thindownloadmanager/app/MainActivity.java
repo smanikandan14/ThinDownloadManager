@@ -45,8 +45,8 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
 
-        int id1 = downloadManager.add(downloadRequest);
-        System.out.println("###### ID 1 ######## "+id1);
+        int downloadId = downloadManager.add(downloadRequest);
+        System.out.println("###### ID 1 ######## "+downloadId);
 
         downloadUri = Uri.parse("http://mobile-video-origin.offercdn.com/DEV1/GlobalFiles/17272.mp4");
         destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test1.mp4");

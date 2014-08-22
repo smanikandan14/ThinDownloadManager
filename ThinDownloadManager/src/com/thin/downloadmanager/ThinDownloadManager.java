@@ -33,7 +33,7 @@ public class ThinDownloadManager implements DownloadManager {
     @Override
     public int add(DownloadRequest request) throws IllegalArgumentException {
         if(request == null) {
-        throw new IllegalArgumentException("DownloadRequest cannot be null");
+            throw new IllegalArgumentException("DownloadRequest cannot be null");
         }
 
         return mRequestQueue.add(request);
