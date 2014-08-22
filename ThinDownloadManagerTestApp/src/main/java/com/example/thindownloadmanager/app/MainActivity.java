@@ -22,8 +22,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
         //Uri downloadUri = Uri.parse("http://mobile-video-origin.o22ffercdn.com/DEV/GlobalFiles/17272.mp4");
-        Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
+
         //Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test.mp4");
+        Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)

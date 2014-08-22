@@ -37,9 +37,16 @@ public class DownloadRequestQueue {
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
     /**
+     * Default constructor.
+     */
+    public DownloadRequestQueue() {
+        mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
+    }
+
+    /**
      * Creates the download dispatchers workers pool.
      */
-	public DownloadRequestQueue(int threadPoolSize) {
+    public DownloadRequestQueue(int threadPoolSize) {
         if(threadPoolSize >0 && threadPoolSize <= 4) {
             mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
         } else {
@@ -67,7 +74,7 @@ public class DownloadRequestQueue {
      * @param listener
      * @return downloadId
      */
-	 int add(DownloadRequest request) {
+    int add(DownloadRequest request) {
 		int downloadId = getDownloadId();
         // Tag the request as belonging to this queue and add it to the set of current requests.
         request.setDownloadRequestQueue(this);
