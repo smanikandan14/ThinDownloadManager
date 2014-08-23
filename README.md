@@ -6,9 +6,12 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ##Why ?
   There are few reasons why you might want to use this library.
-  * In your application development there are situations where you wanted to download the file into your application's sandboxed cache or files directory where no one else can access to. **DownloadManager** provided by android does not have facility to download directly to application's cache or files directory **(/data/data/<package>/cache/ or /data/data/<pacakge>/files/)**. It can only accept external SDcard path as download destination. So you have to have *android.permission.WRITE_EXTERNAL_STORAGE*
   
-  * **No additional permissions required.** Any download initiated by your application using android DownloadManager would throw a progress notification on status bar letting user know that you are downloading a file. So you end up having *android.permission.DOWNLOAD_WITHOUT_NOTIFICATION*. When users install your app, they would be shown this permission and it is scary for them not to install your app. Why give a chance of user not installing your app for this permission. You definetly need this library in this case. 
+  * There are situations where you wanted to download a file into application's sandboxed cache or files directory where no one else can access to. **DownloadManager** provided by android does not have facility to download directly to application's cache or files directory **(/data/data/<package>/cache/ or /data/data/<pacakge>/files/)**. It can only accept destination in external SDcard as download destination. And if you are not using application's external file directory as destination i.e *(setDestinationInExternalFilesDir())* you have to have *android.permission.WRITE_EXTERNAL_STORAGE*
+  
+  Most of the times we download using Android's DownloadManager to external files directory and upon successful completion move the downloaded file to the sandboxed application's cache/file directory to avoid writing a own download manager which is a bit tedious. This library is handy in such situations.
+  
+  * **No additional permissions required.** Any download initiated by your application using android DownloadManager would throw a progress notification on status bar letting user know that you are downloading a file. So you end up using *setVisibleInDownloadsUi(false)* & having this permission *android.permission.DOWNLOAD_WITHOUT_NOTIFICATION*. When users install your app, they would be shown this permission and it makes them scary not to install your app because you are downloading some files without user's notification. Why give a chance of user not installing your app for this permission. You definetly need this library in this case. 
   
   * **Volley** - Google recommended Networking library for android doesn't have options to download a file. 
   
@@ -108,7 +111,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 
 ##No Permissions Required
-  * Unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
+  * Unless if you specify download destination to be in external public SDCard location.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Setup
 * Clone and include the ThinDownloadManager project as library dependency to your project.
