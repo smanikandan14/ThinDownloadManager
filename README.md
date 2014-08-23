@@ -32,8 +32,9 @@ Thin DownloadManager is an android library primary to download files and to avoi
 ####**DownloadRequest**
   * Takes all the necessary information required for download.
   * Download URI, Destination URI.
-  * Priority for request. HIGH,MEDIUM,LOW.
-  * Takes Callback listener *DownloadStatusListener*
+  * Set Priority for request as HIGH or MEDIUM or LOW.
+  * Takes Callback listener DownloadStatusListener
+
      ``` java
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
@@ -109,7 +110,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 ##No Permissions Required
   * Unless if you specify download destination to be in external SDCard.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
-##Download
+##Setup
 * Clone and include the ThinDownloadManager project as library dependency to your project.
 * Download the [JAR] (https://oss.sonatype.org/service/local/repostories/releases/content/com/mani/thindownloadmanager/1.0.0/thindownloadmanager-1.0.0-sources.jar) file include in your project. 
 * Gradle 
