@@ -64,6 +64,10 @@ public interface DownloadManager {
      */
     public final static int ERROR_MALFORMED_URI = 1007;
 
+    /**
+     * Error code when download is cancelled.
+     */
+    public final static int ERROR_DOWNLOAD_CANCELLED = 1008;
 
     public int add( DownloadRequest request);
 

@@ -1,7 +1,11 @@
 package com.thin.downloadmanager;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,10 +19,10 @@ public class DownloadRequestQueue {
      * will be in this set if it is waiting in any queue or currently being processed by
      * any dispatcher.
      */
-    private final Set<DownloadRequest> mCurrentRequests = new HashSet<DownloadRequest>();
+    private Set<DownloadRequest> mCurrentRequests = new HashSet<DownloadRequest>();
 
     /** The queue of requests that are actually going out to the network. */
-    private final PriorityBlockingQueue<DownloadRequest> mDownloadQueue =
+    private PriorityBlockingQueue<DownloadRequest> mDownloadQueue =
         new PriorityBlockingQueue<DownloadRequest>();
 
 
@@ -28,17 +32,70 @@ public class DownloadRequestQueue {
 	/** Used for generating monotonically-increasing sequence numbers for requests. */
     private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
+    private CallBackDelivery mDelivery;
+
+    /**
+     * Delivery class to delivery the call back to call back registrar in main thread.
+     */
+    class CallBackDelivery {
+
+        /** Used for posting responses, typically to the main thread. */
+        private final Executor mCallBackExecutor;
+
+        /**
+         * Constructor taking a handler to main thread.
+         */
+        public CallBackDelivery(final Handler handler) {
+            // Make an Executor that just wraps the handler.
+            mCallBackExecutor = new Executor() {
+                @Override
+                public void execute(Runnable command) {
+                    handler.post(command);
+                }
+            };
+        }
+
+        public void postDownloadComplete(final DownloadRequest request) {
+            mCallBackExecutor.execute(new Runnable() {
+                public void run() {
+                    request.getDownloadListener().onDownloadComplete(request.getDownloadId());
+                }
+            });
+        }
+
+        public void postDownloadFailed(final DownloadRequest request, final int errorCode, final String errorMsg) {
+            mCallBackExecutor.execute(new Runnable() {
+                public void run() {
+                    request.getDownloadListener().onDownloadFailed(
+                            request.getDownloadId(), errorCode, errorMsg);
+                }
+            });
+        }
+
+        public void postProgressUpdate(final DownloadRequest request,final long totalBytes,final int progress) {
+            mCallBackExecutor.execute(new Runnable() {
+                public void run() {
+                    request.getDownloadListener().onProgress(request.getDownloadId(),
+                            totalBytes,progress);
+                }
+            });
+        }
+    }
+
     /**
      * Default constructor.
      */
     public DownloadRequestQueue() {
         mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
+        mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
+        System.out.println("######## DownloadRequestQueue mDelivery in ####### "+mDelivery);
     }
 
     /**
      * Creates the download dispatchers workers pool.
      */
     public DownloadRequestQueue(int threadPoolSize) {
+        mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
         if(threadPoolSize >0 && threadPoolSize <= 4) {
             mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
         } else {
@@ -51,9 +108,9 @@ public class DownloadRequestQueue {
 
         // Create download dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mDownloadDispatchers.length; i++) {
-            DownloadDispatcher networkDispatcher = new DownloadDispatcher(mDownloadQueue);
-            mDownloadDispatchers[i] = networkDispatcher;
-            networkDispatcher.start();
+            DownloadDispatcher downloadDispatcher = new DownloadDispatcher(mDownloadQueue, mDelivery);
+            mDownloadDispatchers[i] = downloadDispatcher;
+            downloadDispatcher.start();
         }
     }
 
@@ -63,7 +120,6 @@ public class DownloadRequestQueue {
      * Generates a download id for the request and adds the download request to the
      * download request queue for the dispatchers pool to act on immediately.
      * @param request
-     * @param listener
      * @return downloadId
      */
     int add(DownloadRequest request) {
@@ -95,7 +151,6 @@ public class DownloadRequestQueue {
                 }
             }
         }
-
         return DownloadManager.STATUS_NOT_FOUND;
     }
 
@@ -103,9 +158,13 @@ public class DownloadRequestQueue {
      * Cancel all the dispatchers in work and also stops the dispatchers.
      */
     void cancelAll() {
-        stop();
-        //Remove from the queue.
+
         synchronized (mCurrentRequests) {
+            for(DownloadRequest request: mCurrentRequests) {
+                request.cancel();
+            }
+
+            //Remove all the requests from the queue.
             mCurrentRequests.clear();
         }
     }
@@ -141,7 +200,19 @@ public class DownloadRequestQueue {
      * Cancels all the pending & running requests and releases all the dispatchers.
      */
     void release() {
-        cancelAll();
+        if(mCurrentRequests != null) {
+            synchronized (mCurrentRequests) {
+                mCurrentRequests.clear();
+                mCurrentRequests = null;
+            }
+        }
+
+        if(mDownloadQueue != null) {
+            mDownloadQueue = null;
+        }
+
+        stop();
+
         if(mDownloadDispatchers != null) {
             for (int i = 0; i < mDownloadDispatchers.length; i++) {
                 mDownloadDispatchers[i] = null;
@@ -150,6 +221,7 @@ public class DownloadRequestQueue {
         }
 
     }
+
     // Private methods.
 
     /**

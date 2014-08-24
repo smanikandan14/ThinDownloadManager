@@ -47,10 +47,10 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         }
 
         String scheme = uri.getScheme();
-        if (scheme == null || scheme.equals("http") == false ) {
-            throw new IllegalArgumentException("Can download only http URIs: "+uri);
+        if (scheme == null || (!scheme.equals("http") && !scheme.equals("https"))) {
+            throw new IllegalArgumentException("Can only download HTTP/HTTPS URIs: " + uri);
         }
-
+        mDownloadState = DownloadManager.STATUS_PENDING;
         mUri = uri;
     }
 

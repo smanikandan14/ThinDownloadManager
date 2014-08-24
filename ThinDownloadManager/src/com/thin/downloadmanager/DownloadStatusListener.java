@@ -9,5 +9,5 @@ public interface DownloadStatusListener {
     void onDownloadFailed (int id, int errorCode, String errorMessage);
 
     //Callback provides download progress
-	void onProgress (int id, int progress);
+	void onProgress (int id, long totalBytes, int progress);
 }
