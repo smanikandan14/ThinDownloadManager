@@ -123,7 +123,7 @@ dependencies {
 }
 ```
 
-Download
+##Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store :
 
 
