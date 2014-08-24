@@ -134,6 +134,10 @@ dependencies {
 * Sample app demonstrates with 4 thread pool size and download three different formats of files jpg, mp3, mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
 
+##Credits
+https://android.googlesource.com/platform/packages/providers/DownloadProvider/
+
+NOTE: Android's DownloadManager has plenty of features which is not available in ThinDownloadManager. So analyse your requirement thoroughly and decide which one to use. 
 
 ##License
 ```
