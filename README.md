@@ -115,7 +115,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ##Setup
 * Clone and include the ThinDownloadManager project as library dependency to your project.
-* Download the [JAR] (https://github.com/smanikandan14/ThinDownloadManager/blob/master/library-jar/thindownloadmanager-1.0.0.jar) file include in your project. 
+* Download the [JAR] (https://github.com/smanikandan14/ThinDownloadManager/raw/master/library-jar/thindownloadmanager-1.0.0.jar) file include in your project. 
 * Gradle 
 ```java
 dependencies {
