@@ -114,9 +114,8 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * Unless if you specify download destination to be in external public SDCard location.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Setup
-* Clone and include the ThinDownloadManager project as library dependency to your project.
-* Download the [JAR] (https://github.com/smanikandan14/ThinDownloadManager/raw/master/library-jar/thindownloadmanager-1.0.0.jar) file include in your project. 
-* Gradle 
+Download and include the [JAR](https://github.com/smanikandan14/ThinDownloadManager/raw/master/library-jar/thindownloadmanager-1.0.0.jar) in your project, or add the dependency in your build.gradle:
+
 ```java
 dependencies {
     compile 'com.mani:thindownloadmanager:1.0.0'
