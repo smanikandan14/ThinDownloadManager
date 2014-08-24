@@ -124,10 +124,12 @@ dependencies {
 ```
 
 Download
-* The source code of sample app code is available for you to play around and the app itself is available for download from play store
+* The source code of sample app code is available for you to play around and the app itself is available for download from play store :
+
+
 <a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app">
   <img alt="Get it on Google Play"
-       src="/images/brand/en_generic_rgb_wo_60.png" />
+       src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png" />
 </a>
 
 * Sample app demonstrates with 4 thread pool size and download three different formats of files 2 jpg, 1 mp3, 1 mp4.
