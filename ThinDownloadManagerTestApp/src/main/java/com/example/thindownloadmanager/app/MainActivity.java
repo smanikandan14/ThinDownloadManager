@@ -42,10 +42,10 @@ public class MainActivity extends ActionBarActivity {
     TextView mProgress3Txt;
     TextView mProgress4Txt;
 
-    private static final String FILE1 = "https://dl.dropboxusercontent.com/u/25887355/Moves1.png";
-    private static final String FILE2 = "https://dl.dropboxusercontent.com/u/25887355/guns_n_glory_video.mp4";
-    private static final String FILE3 = "https://dl.dropboxusercontent.com/u/25887355/guns_n_glory_video.mp4";
-    private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/guns_n_glory_video.mp4";
+    private static final String FILE1 = "https://dl.dropboxusercontent.com/u/25887355/test_photo1.JPG";
+    private static final String FILE2 = "https://dl.dropboxusercontent.com/u/25887355/test_photo2.jpg";
+    private static final String FILE3 = "https://dl.dropboxusercontent.com/u/25887355/test_song.mp3";
+    private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/test_video.mp4";
 
     MyDownloadStatusListener myDownloadStatusListener = new MyDownloadStatusListener();
 
@@ -93,25 +93,25 @@ public class MainActivity extends ActionBarActivity {
         downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
 
         Uri downloadUri = Uri.parse(FILE1);
-        Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/file1.png");
+        Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_photo1.JPG");
         final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE2);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/file2.png");
+        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_photo2.jpg");
         final DownloadRequest downloadRequest2 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE3);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/file3.png");
+        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_song.mp3");
         final DownloadRequest downloadRequest3 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE4);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/file4.png");
+        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_video.mp4");
         final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
