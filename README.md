@@ -131,7 +131,7 @@ dependencies {
        src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png" />
 </a>
 
-* Sample app demonstrates with 4 thread pool size and download three different formats of files 2 jpg, 1 mp3, 1 mp4.
+* Sample app demonstrates with 4 thread pool size and download three different formats of files jpg, mp3, mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
 
 
