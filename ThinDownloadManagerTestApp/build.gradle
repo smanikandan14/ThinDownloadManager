@@ -5,13 +5,12 @@ android {
     buildToolsVersion "19.1.0"
 
     defaultConfig {
-        applicationId "com.example.thindownloadmanager.app"
+        applicationId "com.mani.thindownloadmanager.app"
         minSdkVersion 9
         targetSdkVersion 19
         versionCode 1
         versionName "1.0"
     }
-
     buildTypes {
         release {
             runProguard false
