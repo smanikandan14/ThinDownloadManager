@@ -115,7 +115,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ##Setup
 * Clone and include the ThinDownloadManager project as library dependency to your project.
-* Download the [JAR] (https://oss.sonatype.org/service/local/repostories/releases/content/com/mani/thindownloadmanager/1.0.0/thindownloadmanager-1.0.0-sources.jar) file include in your project. 
+* Download the [JAR] (https://github.com/smanikandan14/ThinDownloadManager/blob/master/library-jar/thindownloadmanager-1.0.0.jar) file include in your project. 
 * Gradle 
 ```java
 dependencies {
@@ -125,10 +125,13 @@ dependencies {
 
 Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store
+<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app">
+  <img alt="Get it on Google Play"
+       src="/images/brand/en_generic_rgb_wo_60.png" />
+</a>
 
 * Sample app demonstrates with 4 thread pool size and download three different formats of files 2 jpg, 1 mp3, 1 mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
-* 
 
 
 ##License
