@@ -28,7 +28,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
     void onDownloadFailed (int id, int errorCode, String errorMessage);
 
     //Callback provides download progress
-	void onProgress (int id, int progress); 
+    void onProgress (int id, long totalBytes, int progress); 
 	
 ```
 
@@ -88,7 +88,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	int status = downloadManager.cancel(downloadId);
   	```
 
-  * To Cancel all running requests use *cancelAll()*
+  * To cancel all running requests use *cancelAll()*
   	```java
   	downloadManager.cancelAll();
   	```
@@ -122,6 +122,15 @@ dependencies {
     compile 'com.mani:thindownloadmanager:1.0.0'
 }
 ```
+
+Download
+* The source code of sample app code is available for you to play around and the app itself is available for download from play store
+
+* Sample app demonstrates with 4 thread pool size and download three different formats of files 2 jpg, 1 mp3, 1 mp4.
+* The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
+* 
+
+
 ##License
 ```
  Copyright 2013 Mani Selvaraj
