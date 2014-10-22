@@ -24,11 +24,11 @@ Thin DownloadManager is an android library primary to download files and to avoi
     void onDownloadComplete (int id);
 
     //Callback if download is failed. Corresponding error code and 
-    error messages are provided
+    //error messages are provided
     void onDownloadFailed (int id, int errorCode, String errorMessage);
 
     //Callback provides download progress
-    void onProgress (int id, long totalBytes, int progress); 
+    void onProgress (int id, long totalBytes, long downlaodedBytes, int progress); 
 	
 ```
 
