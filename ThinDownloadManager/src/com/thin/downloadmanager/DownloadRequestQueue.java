@@ -82,7 +82,6 @@ public class DownloadRequestQueue {
 	public DownloadRequestQueue() {
 		mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
 		mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
-		System.out.println("######## DownloadRequestQueue mDelivery in ####### " + mDelivery);
 	}
 
 	/**
@@ -206,9 +205,9 @@ public class DownloadRequestQueue {
 			mDownloadQueue = null;
 		}
 
-		stop();
-
 		if (mDownloadDispatchers != null) {
+			stop();
+			
 			for (int i = 0; i < mDownloadDispatchers.length; i++) {
 				mDownloadDispatchers[i] = null;
 			}
