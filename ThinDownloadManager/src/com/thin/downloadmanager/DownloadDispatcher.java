@@ -229,7 +229,7 @@ public class DownloadDispatcher extends Thread {
 
             if (mContentLength != -1) {
                 int progress = (int) ((mCurrentBytes * 100) / mContentLength);
-                updateDownloadProgress(progress);
+                updateDownloadProgress(progress, mCurrentBytes);
             }
 
             if (bytesRead == -1) { // success, end of stream already reached
@@ -327,9 +327,9 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    public void updateDownloadProgress(int progress) {
+    public void updateDownloadProgress(int progress, long downloadedBytes) {
         if(mRequest.getDownloadListener() != null) {
-            mDelivery.postProgressUpdate(mRequest,mContentLength, progress);
+            mDelivery.postProgressUpdate(mRequest,mContentLength, downloadedBytes, progress);
         }
     }
 }
