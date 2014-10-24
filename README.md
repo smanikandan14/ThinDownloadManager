@@ -98,7 +98,12 @@ Thin DownloadManager is an android library primary to download files and to avoi
     The possible status could be
   	- STATUS_PENDING
   	- STATUS_STARTED
+  	- STATUS_CONNECTING
   	- STATUS_RUNNING
+  	- STATUS_SUCCESSFUL
+  	- STATUS_FAILED
+  	- STATUS_NOT_FOUND
+  	- STATUS_RETRY
   	
   	```java
   	int status = downloadManager.query(downloadId);
