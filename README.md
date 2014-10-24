@@ -42,7 +42,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)./*Default*/setRetryAttempts(2)./*Default*/setRetryWaitInterval(TimeUnit.SECONDS.toMillis(5))
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
                     public void onDownloadComplete(int id) {
@@ -55,7 +55,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
                     }
 
                     @Override
-                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress)) {
+                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress) {
                         
                     }
                 });
