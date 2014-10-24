@@ -187,7 +187,7 @@ public class DownloadDispatcher extends Thread {
                 executeDownload(downloadUrl.toString());
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                updateDownloadFailed(DownloadManager.ERROR_RETRY_FAILED, String.format(Locale.getDefault(), "Retry attempt #(%d) has been failed.", retryAttemptsMade));
+                updateDownloadFailed(DownloadManager.ERROR_RETRY_FAILED, String.format(Locale.getDefault(), "Retry attempt #(%d/%d) has been failed.", retryAttemptsMade, mRequest.getRetryAttempts()));
                 updateDownloadState(DownloadManager.STATUS_FAILED);
             }
 
