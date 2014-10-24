@@ -16,8 +16,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
 
-import com.thin.downloadmanager.DownloadManager;
-
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
@@ -117,10 +115,10 @@ public class DownloadDispatcher extends Thread {
             conn.setConnectTimeout(DEFAULT_TIMEOUT);
             conn.setReadTimeout(DEFAULT_TIMEOUT);
 
-            // Status should be set here because it internally calls
-            // getInputStream() first since getHeaderField() doesn't return
-            // exceptions
+            // Status Connecting is set here before 
+            // urlConnection is trying to connect to destination.            
          	updateDownloadState(DownloadManager.STATUS_CONNECTING);
+         	
             final int responseCode = conn.getResponseCode();
             
             Log.v(TAG, "Response code obtained for downloaded Id "+mRequest.getDownloadId()+" : httpResponse Code "+responseCode);

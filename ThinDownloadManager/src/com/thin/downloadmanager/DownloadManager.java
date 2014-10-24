@@ -13,7 +13,7 @@ public interface DownloadManager {
 	public final static int STATUS_STARTED = 1 << 1;
 
 	/**
-	 * Status when the download is currently pending.
+	 * Status when the download network call is connecting to destination.
 	 */
 	public final static int STATUS_CONNECTING = 1 << 2;
 
