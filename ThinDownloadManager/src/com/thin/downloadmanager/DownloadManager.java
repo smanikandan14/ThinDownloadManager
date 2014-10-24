@@ -37,6 +37,11 @@ public interface DownloadManager {
 	 */
 	public final static int STATUS_NOT_FOUND = 1 << 6;
 
+    /**
+     * When download has been failed and Thread is waiting to connect again if retry count is given
+     */
+    public final static int STATUS_RETRY = 1 << 7;
+
 	/**
 	 * Error code when writing download content to the destination file.
 	 */
@@ -73,6 +78,11 @@ public interface DownloadManager {
 	 * Error code when download is cancelled.
 	 */
 	public final static int ERROR_DOWNLOAD_CANCELLED = 1008;
+
+    /**
+     * Error code when download is cancelled.
+     */
+    public final static int ERROR_RETRY_FAILED = 1009;
 
 	public int add(DownloadRequest request);
 
