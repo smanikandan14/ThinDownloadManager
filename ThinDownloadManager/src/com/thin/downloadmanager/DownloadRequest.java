@@ -1,5 +1,7 @@
 package com.thin.downloadmanager;
 
+import java.util.HashMap;
+
 import android.net.Uri;
 
 public class DownloadRequest implements Comparable<DownloadRequest> {
@@ -28,6 +30,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private DownloadStatusListener mDownloadListener;
 
+    private HashMap<String, String> mCustomHeader;
+
     /**
      * Priority values.  Requests will be processed from higher priorities to
      * lower priorities, in FIFO order.
@@ -50,6 +54,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         if (scheme == null || (!scheme.equals("http") && !scheme.equals("https"))) {
             throw new IllegalArgumentException("Can only download HTTP/HTTPS URIs: " + uri);
         }
+        mCustomHeader  = new HashMap<String, String>();
         mDownloadState = DownloadManager.STATUS_PENDING;
         mUri = uri;
     }
@@ -70,6 +75,16 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     	mPriority = priority;
         return this;
     }
+
+    /**
+     * Adds custom header to request
+     * @param key
+     * @param value
+     */
+    public void addCustomHeader(String key, String value) {
+    	mCustomHeader.put(key, value);
+    }
+
 
      /**
      * Associates this request with the given queue. The request queue will be notified when this
@@ -140,6 +155,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     public boolean isCanceled() {
         return mCanceled;
     }
+
+    /**
+     * Returns all custom headers set by user
+     * @return
+     */
+    HashMap<String, String> getCustomHeaders() {
+    	return mCustomHeader;
+    }
+
 
     void finish() {
     	mRequestQueue.finish(this);
