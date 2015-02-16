@@ -1,4 +1,4 @@
-ThinDownloadManager
+ThinDownloadManager [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android--Ultra--Photo--Selector-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1527)
 ===================
 
 Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission when using Android provided DownloadManager in your application. 
