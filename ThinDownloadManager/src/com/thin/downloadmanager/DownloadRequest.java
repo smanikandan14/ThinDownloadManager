@@ -1,8 +1,15 @@
 package com.thin.downloadmanager;
 
 import android.net.Uri;
+import android.text.format.DateUtils;
 
 public class DownloadRequest implements Comparable<DownloadRequest> {
+
+    /** If download fails, then how many retry attempts should be made **/
+    private final int DEFAULT_RETRY_ATTEMPTS = 2;
+
+    private final long DEFAULT_RETRY_WAIT =  (5 * DateUtils.SECOND_IN_MILLIS);
+
 
     /** Tells the current download state of this request */
 	private int mDownloadState;
@@ -28,6 +35,9 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private DownloadStatusListener mDownloadListener;
 
+    private int mRetryAttempts;
+    private long mRetryWaitMilli;
+
     /**
      * Priority values.  Requests will be processed from higher priorities to
      * lower priorities, in FIFO order.
@@ -52,6 +62,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         }
         mDownloadState = DownloadManager.STATUS_PENDING;
         mUri = uri;
+        mRetryAttempts = DEFAULT_RETRY_ATTEMPTS;
+        mRetryWaitMilli = DEFAULT_RETRY_WAIT;
     }
 
     /**
@@ -124,6 +136,45 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 		this.mDestinationURI = destinationURI;
         return this;
 	}
+
+    /**
+     *
+     * @param retry number of retry attempts
+     * @return
+     */
+    public DownloadRequest setRetryAttempts(int retry){
+        this.mRetryAttempts = retry;
+        return this;
+    }
+
+    public int getRetryAttempts(){
+        return this.mRetryAttempts;
+    }
+    /**
+     *
+     * @param retry number of retry attempts
+     * @param waitTime duration of time to wait between retry attempts
+     * @return
+     */
+    public DownloadRequest setRetryAttempts(int retry, long waitTime){
+        this.mRetryAttempts = retry;
+        return this;
+    }
+
+    /**
+     *
+     * @param milli duration to wait between retry attempts
+     * @return
+     */
+    public DownloadRequest setRetryWaitInterval(long milli){
+        this.mRetryWaitMilli = milli;
+        return this;
+    }
+
+    public long getRetryWaitInterval(){
+        return this.mRetryWaitMilli;
+    }
+
 
     //Package-private methods.
 

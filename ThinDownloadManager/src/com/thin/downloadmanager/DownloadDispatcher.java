@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -72,7 +73,7 @@ public class DownloadDispatcher extends Thread {
         
     	while(true) {
     		try {
-                mRequest = mQueue.take();
+                mRequest = mQueue.take(); //blocking
                 mRedirectionCount = 0;
                 Log.v(TAG, "Download initiated for " + mRequest.getDownloadId());
                 updateDownloadState(DownloadManager.STATUS_STARTED);
@@ -97,9 +98,10 @@ public class DownloadDispatcher extends Thread {
     }
 
 
-
+    private int retryAttemptsMade = 0;
     private void executeDownload(String downloadUrl) {
         URL url = null;
+        boolean isExceptionRaised = false;
         try {
             url = new URL(downloadUrl);
         } catch (MalformedURLException e) {
@@ -138,7 +140,7 @@ public class DownloadDispatcher extends Thread {
                 case HTTP_TEMP_REDIRECT:
                     // Take redirect url and call executeDownload recursively until
                     // MAX_REDIRECT is reached.
-                    while (mRedirectionCount++ < MAX_REDIRECTS && shouldAllowRedirects) {
+                    while (shouldAllowRedirects && mRedirectionCount++ < MAX_REDIRECTS) {
                         Log.v(TAG, "Redirect for downloaded Id "+mRequest.getDownloadId());
                         final String location = conn.getHeaderField("Location");
                         executeDownload(location);
@@ -164,12 +166,29 @@ public class DownloadDispatcher extends Thread {
                     break;
             }
         } catch(IOException e){
+            isExceptionRaised = true;
             e.printStackTrace();
             updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
+            updateDownloadState(DownloadManager.STATUS_FAILED);
         } finally{
             if (conn != null) {
                 conn.disconnect();
             }
+        }
+
+        if(isExceptionRaised && mRequest.getRetryAttempts() > retryAttemptsMade){
+            retryAttemptsMade++;
+            try {
+                updateDownloadState(DownloadManager.STATUS_RETRY);
+                this.sleep(mRequest.getRetryWaitInterval());
+                // Redirected URL if there were any redirects.
+                executeDownload(downloadUrl.toString());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                updateDownloadFailed(DownloadManager.ERROR_RETRY_FAILED, String.format(Locale.getDefault(), "Retry attempt #(%d/%d) has been failed.", retryAttemptsMade, mRequest.getRetryAttempts()));
+                updateDownloadState(DownloadManager.STATUS_FAILED);
+            }
+
         }
 	}
 	

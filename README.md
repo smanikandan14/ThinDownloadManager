@@ -1,4 +1,4 @@
-ThinDownloadManager
+ThinDownloadManager [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-ThinDownloadManager-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1077)
 ===================
 
 Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission when using Android provided DownloadManager in your application. 
@@ -42,7 +42,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)./*Default*/setRetryAttempts(2)./*Default*/setRetryWaitInterval(TimeUnit.SECONDS.toMillis(5))
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
                     public void onDownloadComplete(int id) {
@@ -55,7 +55,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
                     }
 
                     @Override
-                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress)) {
+                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress) {
                         
                     }
                 });
@@ -98,7 +98,12 @@ Thin DownloadManager is an android library primary to download files and to avoi
     The possible status could be
   	- STATUS_PENDING
   	- STATUS_STARTED
+  	- STATUS_CONNECTING
   	- STATUS_RUNNING
+  	- STATUS_SUCCESSFUL
+  	- STATUS_FAILED
+  	- STATUS_NOT_FOUND
+  	- STATUS_RETRY
   	
   	```java
   	int status = downloadManager.query(downloadId);
