@@ -43,13 +43,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    buildTypes {
-        debug {
-            runProguard false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
-
     lintOptions {
         abortOnError false
     }
