@@ -219,8 +219,6 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onDownloadComplete(int id) {
-            System.out.println("###### onDownloadComplete ######## "+id);
-
             if (id == downloadId1) {
                 mProgress1Txt.setText("Download1 id: "+id+" Completed");
 
@@ -237,7 +235,6 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onDownloadFailed(int id, int errorCode, String errorMessage) {
-            System.out.println("###### onDownloadFailed ######## "+id+" : "+errorCode+" : "+errorMessage);
             if (id == downloadId1) {
                 mProgress1Txt.setText("Download1 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress1.setProgress(0);

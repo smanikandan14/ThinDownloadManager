@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.concurrent.BlockingQueue;
@@ -163,6 +164,10 @@ public class DownloadDispatcher extends Thread {
                     updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE, "Unhandled HTTP response:" + responseCode +" message:" +conn.getResponseMessage());
                     break;
             }
+        } catch(SocketTimeoutException e) {
+            e.printStackTrace();
+            // Retry.
+
         } catch(IOException e){
             e.printStackTrace();
             updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
@@ -233,7 +238,7 @@ public class DownloadDispatcher extends Thread {
             }
             int bytesRead = readFromResponse( data, in);
 
-            if (mContentLength != -1) {
+            if (mContentLength != -1 && mContentLength > 0) {
                 int progress = (int) ((mCurrentBytes * 100) / mContentLength);
                 updateDownloadProgress(progress, mCurrentBytes);
             }
