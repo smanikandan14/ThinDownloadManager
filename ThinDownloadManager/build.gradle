@@ -19,13 +19,6 @@ android {
         exclude 'META-INF/NOTICE.txt'
     }
 
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-    }
-
     lintOptions {
         abortOnError false
     }

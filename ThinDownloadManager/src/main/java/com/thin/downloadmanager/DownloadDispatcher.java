@@ -1,8 +1,9 @@
 package com.thin.downloadmanager;
 
 import android.os.Process;
-import android.text.format.DateUtils;
 import android.util.Log;
+
+import org.apache.http.conn.ConnectTimeoutException;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -15,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -38,9 +41,6 @@ public class DownloadDispatcher extends Thread {
     /** To Delivery call back response on main thread */
     private DownloadRequestQueue.CallBackDelivery mDelivery;
 
-    /** Connection & Socket timeout */
-    private final int DEFAULT_TIMEOUT = (int) (20 * DateUtils.SECOND_IN_MILLIS);
-
     /** The buffer size used to stream the data */
     public final int BUFFER_SIZE = 4096;
 
@@ -57,6 +57,8 @@ public class DownloadDispatcher extends Thread {
     private long mCurrentBytes;
     boolean shouldAllowRedirects = true;
 
+    Timer mTimer;
+
     /** Tag used for debugging/logging */
     public static final String TAG = "ThinDownloadManager";
 
@@ -70,7 +72,7 @@ public class DownloadDispatcher extends Thread {
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        
+        mTimer = new Timer();
     	while(true) {
     		try {
                 mRequest = mQueue.take();
@@ -83,7 +85,8 @@ public class DownloadDispatcher extends Thread {
                 if (mQuit) {
                     if(mRequest != null) {
                         mRequest.finish();
-                        updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED,"Download cancelled");
+                        updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
+                        mTimer.cancel();
                     }
                     return;
                 }
@@ -113,12 +116,12 @@ public class DownloadDispatcher extends Thread {
         try {
             conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(false);
-            conn.setConnectTimeout(DEFAULT_TIMEOUT);
-            conn.setReadTimeout(DEFAULT_TIMEOUT);
+            conn.setConnectTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
+            conn.setReadTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
 
             // Status Connecting is set here before 
             // urlConnection is trying to connect to destination.            
-         	updateDownloadState(DownloadManager.STATUS_CONNECTING);
+            updateDownloadState(DownloadManager.STATUS_CONNECTING);
          	
             final int responseCode = conn.getResponseCode();
             
@@ -167,7 +170,12 @@ public class DownloadDispatcher extends Thread {
         } catch(SocketTimeoutException e) {
             e.printStackTrace();
             // Retry.
-
+            Log.d(TAG,"######### socket time out exception e ###### ");
+            attemptRetryOnTimeOutException();
+        } catch (ConnectTimeoutException e) {
+            e.printStackTrace();
+            Log.d(TAG, "######### ConnectTimeoutException exception e ###### ");
+            attemptRetryOnTimeOutException();
         } catch(IOException e){
             e.printStackTrace();
             updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
@@ -228,7 +236,7 @@ public class DownloadDispatcher extends Thread {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
         mRequest.setDownloadState(DownloadManager.STATUS_RUNNING);
-        Log.v(TAG, "Content Length: "+mContentLength+" for Download Id "+mRequest.getDownloadId());
+        Log.v(TAG, "Content Length: " + mContentLength + " for Download Id " + mRequest.getDownloadId());
         for (;;) {
             if (mRequest.isCanceled()) {
                 Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id "+mRequest.getDownloadId());
@@ -301,6 +309,23 @@ public class DownloadDispatcher extends Thread {
             return Long.parseLong(conn.getHeaderField(field));
         } catch (NumberFormatException e) {
             return defaultValue;
+        }
+    }
+
+    private void attemptRetryOnTimeOutException()  {
+        final RetryPolicy retryPolicy = mRequest.getRetryPolicy();
+        try {
+            retryPolicy.retry();
+            mTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    executeDownload(mRequest.getUri().toString());
+                }
+            }, retryPolicy.getCurrentTimeout());
+        } catch (RetryError e) {
+            // Update download failed.
+            updateDownloadFailed(DownloadManager.ERROR_CONNECTION_TIMEOUT_AFTER_RETRIES,
+                    "Connection time out after maximum retires attempted");
         }
     }
 

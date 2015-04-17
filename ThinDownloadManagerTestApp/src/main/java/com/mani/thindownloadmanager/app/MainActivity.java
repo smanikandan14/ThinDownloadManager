@@ -1,4 +1,4 @@
-package com.example.thindownloadmanager.app;
+package com.mani.thindownloadmanager.app;
 
 import android.app.AlertDialog;
 import android.net.Uri;
@@ -10,10 +10,11 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.mani.thindownloadmanager.app.R;
+import com.thin.downloadmanager.DefaultRetryPolicy;
 import com.thin.downloadmanager.DownloadManager;
 import com.thin.downloadmanager.DownloadRequest;
 import com.thin.downloadmanager.DownloadStatusListener;
+import com.thin.downloadmanager.RetryPolicy;
 import com.thin.downloadmanager.ThinDownloadManager;
 
 import java.io.File;
@@ -92,11 +93,13 @@ public class MainActivity extends ActionBarActivity {
         mProgress4.setProgress(0);
 
         downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
+        RetryPolicy retryPolicy = new DefaultRetryPolicy();
 
         Uri downloadUri = Uri.parse(FILE1);
         Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_photo1.JPG");
         final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
+                .setRetryPolicy(retryPolicy)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE2);
@@ -113,7 +116,10 @@ public class MainActivity extends ActionBarActivity {
 
         downloadUri = Uri.parse(FILE4);
         destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_video.mp4");
+        // Define a custom retry policy
+        retryPolicy = new DefaultRetryPolicy(5000, 3, 2f);
         final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)
+                .setRetryPolicy(retryPolicy)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
 
@@ -253,7 +259,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onProgress(int id, long totalBytes,int progress) {
+        public void onProgress(int id, long totalBytes, long downloadedBytes, int progress) {
             if (id == downloadId1) {
                 mProgress1Txt.setText("Download1 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress1.setProgress(progress);

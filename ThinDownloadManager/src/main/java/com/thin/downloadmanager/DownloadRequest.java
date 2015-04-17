@@ -21,6 +21,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     private Uri mDestinationURI;
 
+    private RetryPolicy mRetryPolicy;
+
     /** Whether or not this request has been canceled. */
     private boolean mCanceled = false;
 
@@ -77,6 +79,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     void setDownloadRequestQueue(DownloadRequestQueue downloadQueue) {
     	mRequestQueue = downloadQueue;
+    }
+
+    public RetryPolicy getRetryPolicy() {
+        return mRetryPolicy;
+    }
+
+    public DownloadRequest setRetryPolicy(RetryPolicy mRetryPolicy) {
+        this.mRetryPolicy = mRetryPolicy;
+        return this;
     }
 
     /**
