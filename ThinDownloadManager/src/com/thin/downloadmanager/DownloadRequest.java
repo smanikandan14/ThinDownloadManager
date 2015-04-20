@@ -42,7 +42,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         HIGH,
         IMMEDIATE
     }
-    
+
     private Priority mPriority = Priority.NORMAL;
 
     public DownloadRequest(Uri uri) {
@@ -81,8 +81,9 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      * @param key
      * @param value
      */
-    public void addCustomHeader(String key, String value) {
-    	mCustomHeader.put(key, value);
+    public DownloadRequest addCustomHeader(String key, String value) {
+      mCustomHeader.put(key, value);
+      return this;
     }
 
 
@@ -104,7 +105,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     final int getDownloadId() {
         return mDownloadId;
     }
-    
+
     int getDownloadState() {
 		return mDownloadState;
 	}
@@ -178,6 +179,6 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         // Equal priorities are sorted by sequence number to provide FIFO ordering.
         return left == right ?
                 this.mDownloadId - other.mDownloadId :
-                right.ordinal() - left.ordinal();		
+                right.ordinal() - left.ordinal();
 	}
 }
