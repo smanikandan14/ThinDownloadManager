@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">ThinDownloadManager</string>
-    <string name="download1">Start Download1</string>
-    <string name="download2">Start Download2</string>
-    <string name="download3">Start Download3</string>
-    <string name="download4">Start Download4</string>
+  <string name="app_name">ThinDownloadManager</string>
+  <string name="download1">Start Download1</string>
+  <string name="download2">Start Download2</string>
+  <string name="download3">Start Download3</string>
+  <string name="download4">Start Download4</string>
+  <string name="download5">Start Download With Headers</string>
 
-    <string name="start_all">Start All</string>
-    <string name="cancel_all">Cancel All</string>
+  <string name="start_all">Start All</string>
+  <string name="cancel_all">Cancel All</string>
 
-    <string name="list_files">List /data/data/../files/ </string>
+  <string name="list_files">List</string>
 
 </resources>

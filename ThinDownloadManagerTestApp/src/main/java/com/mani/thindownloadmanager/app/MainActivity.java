@@ -29,6 +29,7 @@ public class MainActivity extends ActionBarActivity {
     Button mDownload2;
     Button mDownload3;
     Button mDownload4;
+    Button mDownload5;
 
     Button mStartAll;
     Button mCancelAll;
@@ -38,16 +39,19 @@ public class MainActivity extends ActionBarActivity {
     ProgressBar mProgress2;
     ProgressBar mProgress3;
     ProgressBar mProgress4;
+    ProgressBar mProgress5;
 
     TextView mProgress1Txt;
     TextView mProgress2Txt;
     TextView mProgress3Txt;
     TextView mProgress4Txt;
+    TextView mProgress5Txt;
 
     private static final String FILE1 = "https://dl.dropboxusercontent.com/u/25887355/test_photo1.JPG";
     private static final String FILE2 = "https://dl.dropboxusercontent.com/u/25887355/test_photo2.jpg";
     private static final String FILE3 = "https://dl.dropboxusercontent.com/u/25887355/test_song.mp3";
     private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/test_video.mp4";
+    private static final String FILE5 = "http://httpbin.org/headers";
 
     MyDownloadStatusListener myDownloadStatusListener = new MyDownloadStatusListener();
 
@@ -55,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
     int downloadId2;
     int downloadId3;
     int downloadId4;
+    int downloadId5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +70,7 @@ public class MainActivity extends ActionBarActivity {
         mDownload2 = (Button) findViewById(R.id.button2);
         mDownload3 = (Button) findViewById(R.id.button3);
         mDownload4 = (Button) findViewById(R.id.button4);
+        mDownload5 = (Button) findViewById(R.id.button_download_headers);
 
         mStartAll = (Button) findViewById(R.id.button5);
         mCancelAll = (Button) findViewById(R.id.button6);
@@ -74,11 +80,13 @@ public class MainActivity extends ActionBarActivity {
         mProgress2Txt = (TextView) findViewById(R.id.progressTxt2);
         mProgress3Txt = (TextView) findViewById(R.id.progressTxt3);
         mProgress4Txt = (TextView) findViewById(R.id.progressTxt4);
+        mProgress5Txt = (TextView) findViewById(R.id.progressTxt5);
 
         mProgress1 = (ProgressBar) findViewById(R.id.progress1);
         mProgress2 = (ProgressBar) findViewById(R.id.progress2);
         mProgress3 = (ProgressBar) findViewById(R.id.progress3);
         mProgress4 = (ProgressBar) findViewById(R.id.progress4);
+        mProgress5 = (ProgressBar) findViewById(R.id.progress5);
 
         mProgress1.setMax(100);
         mProgress1.setProgress(0);
@@ -92,34 +100,47 @@ public class MainActivity extends ActionBarActivity {
         mProgress4.setMax(100);
         mProgress4.setProgress(0);
 
+        mProgress5.setMax(100);
+        mProgress5.setProgress(0);
+
         downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
         RetryPolicy retryPolicy = new DefaultRetryPolicy();
 
+        File filesDir = getExternalFilesDir("");
+
         Uri downloadUri = Uri.parse(FILE1);
-        Uri destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_photo1.JPG");
+        Uri destinationUri = Uri.parse(filesDir+"/test_photo1.JPG");
         final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setRetryPolicy(retryPolicy)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE2);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_photo2.jpg");
+        destinationUri = Uri.parse(filesDir+"/test_photo2.jpg");
         final DownloadRequest downloadRequest2 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE3);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_song.mp3");
+        destinationUri = Uri.parse(filesDir+"/test_song.mp3");
         final DownloadRequest downloadRequest3 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE4);
-        destinationUri = Uri.parse(this.getFilesDir().toString()+"/test_video.mp4");
+        destinationUri = Uri.parse(filesDir+"/test_video.mp4");
         // Define a custom retry policy
         retryPolicy = new DefaultRetryPolicy(5000, 3, 2f);
         final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)
                 .setRetryPolicy(retryPolicy)
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadListener(myDownloadStatusListener);
+
+        downloadUri = Uri.parse(FILE5);
+        destinationUri = Uri.parse(filesDir+"/headers.json");
+        final DownloadRequest downloadRequest5 = new DownloadRequest(downloadUri)
+                .addCustomHeader("Auth-Token", "myTokenKey")
+                .addCustomHeader("User-Agent", "Thin/Android")
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
 
@@ -159,6 +180,15 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        mDownload5.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+                if (downloadManager.query(downloadId5) == DownloadManager.STATUS_NOT_FOUND) {
+                    downloadId5 = downloadManager.add(downloadRequest5);
+                }
+          }
+        });
+
         mStartAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -167,6 +197,7 @@ public class MainActivity extends ActionBarActivity {
                 downloadId2 = downloadManager.add(downloadRequest2);
                 downloadId3 = downloadManager.add(downloadRequest3);
                 downloadId4 = downloadManager.add(downloadRequest4);
+                downloadId5 = downloadManager.add(downloadRequest5);
             }
         });
 
@@ -188,6 +219,7 @@ public class MainActivity extends ActionBarActivity {
         mProgress2Txt.setText("Download2");
         mProgress3Txt.setText("Download3");
         mProgress4Txt.setText("Download4");
+        mProgress5Txt.setText("Download5");
     }
 
     @Override
@@ -198,7 +230,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void showInternalFilesDir() {
-        File internalFile = new File(getFilesDir().getPath());
+        File internalFile = new File(getExternalFilesDir("").getPath());
         File files[] = internalFile.listFiles();
         String contentText = "";
         if( files.length == 0 ) {
@@ -236,6 +268,8 @@ public class MainActivity extends ActionBarActivity {
 
             } else if (id == downloadId4) {
                 mProgress4Txt.setText("Download4 id: "+id+" Completed");
+            } else if (id == downloadId5) {
+              mProgress5Txt.setText("Download5 id: "+id+" Completed");
             }
         }
 
@@ -255,6 +289,9 @@ public class MainActivity extends ActionBarActivity {
             } else if (id == downloadId4) {
                 mProgress4Txt.setText("Download4 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress4.setProgress(0);
+            } else if (id == downloadId5) {
+              mProgress5Txt.setText("Download5 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+              mProgress5.setProgress(0);
             }
         }
 
@@ -275,6 +312,9 @@ public class MainActivity extends ActionBarActivity {
             } else if (id == downloadId4) {
                 mProgress4Txt.setText("Download4 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress4.setProgress(progress);
+            } else if (id == downloadId5) {
+              mProgress5Txt.setText("Download5 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+              mProgress5.setProgress(progress);
             }
         }
     }

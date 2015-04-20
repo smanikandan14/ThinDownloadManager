@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
@@ -79,7 +81,7 @@ public class DownloadDispatcher extends Thread {
                 mRedirectionCount = 0;
                 Log.v(TAG, "Download initiated for " + mRequest.getDownloadId());
                 updateDownloadState(DownloadManager.STATUS_STARTED);
-                executeDownload(mRequest.getUri().toString());
+                executeDownload(mRequest.getUri().toString(), mRequest.getCustomHeaders());
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
@@ -101,8 +103,7 @@ public class DownloadDispatcher extends Thread {
     }
 
 
-
-    private void executeDownload(String downloadUrl) {
+    private void executeDownload(String downloadUrl, Map<String, String> customHeaders) {
         URL url = null;
         try {
             url = new URL(downloadUrl);
@@ -119,9 +120,15 @@ public class DownloadDispatcher extends Thread {
             conn.setConnectTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
             conn.setReadTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
 
-            // Status Connecting is set here before 
-            // urlConnection is trying to connect to destination.            
-            updateDownloadState(DownloadManager.STATUS_CONNECTING);
+            if (customHeaders != null) {
+            	for (String headerName : customHeaders.keySet()) {
+            		conn.addRequestProperty(headerName, customHeaders.get(headerName));
+            	}
+            }
+
+            // Status Connecting is set here before
+            // urlConnection is trying to connect to destination.
+         	updateDownloadState(DownloadManager.STATUS_CONNECTING);
          	
             final int responseCode = conn.getResponseCode();
             
@@ -145,7 +152,7 @@ public class DownloadDispatcher extends Thread {
                     while (mRedirectionCount++ < MAX_REDIRECTS && shouldAllowRedirects) {
                         Log.v(TAG, "Redirect for downloaded Id "+mRequest.getDownloadId());
                         final String location = conn.getHeaderField("Location");
-                        executeDownload(location);
+                        executeDownload(location, customHeaders);
                         continue;
                     }
 
@@ -319,7 +326,7 @@ public class DownloadDispatcher extends Thread {
             mTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    executeDownload(mRequest.getUri().toString());
+                    executeDownload(mRequest.getUri().toString(), new HashMap<String, String>());
                 }
             }, retryPolicy.getCurrentTimeout());
         } catch (RetryError e) {

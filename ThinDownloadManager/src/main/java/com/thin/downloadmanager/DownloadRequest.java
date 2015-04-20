@@ -1,5 +1,7 @@
 package com.thin.downloadmanager;
 
+import java.util.HashMap;
+
 import android.net.Uri;
 
 public class DownloadRequest implements Comparable<DownloadRequest> {
@@ -30,6 +32,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private DownloadStatusListener mDownloadListener;
 
+    private HashMap<String, String> mCustomHeader;
+
     /**
      * Priority values.  Requests will be processed from higher priorities to
      * lower priorities, in FIFO order.
@@ -40,7 +44,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         HIGH,
         IMMEDIATE
     }
-    
+
     private Priority mPriority = Priority.NORMAL;
 
     public DownloadRequest(Uri uri) {
@@ -52,6 +56,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         if (scheme == null || (!scheme.equals("http") && !scheme.equals("https"))) {
             throw new IllegalArgumentException("Can only download HTTP/HTTPS URIs: " + uri);
         }
+        mCustomHeader  = new HashMap<String, String>();
         mDownloadState = DownloadManager.STATUS_PENDING;
         mUri = uri;
     }
@@ -73,6 +78,17 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return this;
     }
 
+    /**
+     * Adds custom header to request
+     * @param key
+     * @param value
+     */
+    public DownloadRequest addCustomHeader(String key, String value) {
+      mCustomHeader.put(key, value);
+      return this;
+    }
+
+
      /**
      * Associates this request with the given queue. The request queue will be notified when this
      * request has finished.
@@ -82,7 +98,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     }
 
     public RetryPolicy getRetryPolicy() {
-        return mRetryPolicy;
+        return mRetryPolicy == null ? new DefaultRetryPolicy() : mRetryPolicy;
     }
 
     public DownloadRequest setRetryPolicy(RetryPolicy mRetryPolicy) {
@@ -100,7 +116,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     final int getDownloadId() {
         return mDownloadId;
     }
-    
+
     int getDownloadState() {
 		return mDownloadState;
 	}
@@ -152,6 +168,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return mCanceled;
     }
 
+    /**
+     * Returns all custom headers set by user
+     * @return
+     */
+    HashMap<String, String> getCustomHeaders() {
+    	return mCustomHeader;
+    }
+
+
     void finish() {
     	mRequestQueue.finish(this);
     }
@@ -165,6 +190,6 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         // Equal priorities are sorted by sequence number to provide FIFO ordering.
         return left == right ?
                 this.mDownloadId - other.mDownloadId :
-                right.ordinal() - left.ordinal();		
+                right.ordinal() - left.ordinal();
 	}
 }

@@ -1,135 +1,160 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity">
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            tools:context=".MainActivity">
 
 
-<RelativeLayout
+  <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/button1"
-        android:layout_marginTop="10dp"
-        android:text="@string/download1"
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentLeft="true"
+      android:layout_marginTop="10dp"
+      android:text="@string/download1"/>
 
     <Button
-        android:id="@+id/button2"
-        android:text="@string/download2"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_marginTop="10dp"
+      android:text="@string/download2"/>
 
 
     <Button
-        android:id="@+id/button3"
-        android:text="@string/download3"
-        android:layout_below="@id/button1"
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button3"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentLeft="true"
+      android:layout_below="@id/button1"
+      android:text="@string/download3"/>
 
     <Button
-        android:id="@+id/button4"
-        android:layout_below="@id/button1"
-        android:text="@string/download4"
-        android:layout_width="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button4"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_below="@id/button1"
+      android:text="@string/download4"/>
 
     <Button
-        android:id="@+id/button5"
-        android:text="@string/start_all"
-        android:layout_below="@id/button3"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentLeft="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button5"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentLeft="true"
+      android:layout_below="@id/button3"
+      android:layout_marginTop="10dp"
+      android:text="@string/start_all"/>
 
     <Button
-        android:id="@+id/button6"
-        android:layout_below="@id/button3"
-        android:text="@string/cancel_all"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button6"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_below="@id/button3"
+      android:layout_marginTop="10dp"
+      android:text="@string/cancel_all"/>
 
     <Button
-        android:id="@+id/button7"
-        android:layout_below="@id/button5"
-        android:text="@string/list_files"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/button7"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/button5"
+      android:layout_marginTop="10dp"
+      android:text="@string/list_files"/>
 
     <TextView
-        android:id="@+id/progressTxt1"
-        android:layout_below="@id/button7"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/progressTxt1"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/button7"
+      android:layout_marginTop="10dp"/>
 
     <ProgressBar
-        android:id="@+id/progress1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/progressTxt1"
-        android:layout_marginTop="5dip"
-        style="@android:style/Widget.ProgressBar.Horizontal"/>
+      android:id="@+id/progress1"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progressTxt1"
+      android:layout_marginTop="5dip"/>
 
     <TextView
-        android:id="@+id/progressTxt2"
-        android:layout_below="@id/progress1"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/progressTxt2"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progress1"
+      android:layout_marginTop="10dp"/>
 
     <ProgressBar
-        android:id="@+id/progress2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/progressTxt2"
-        android:layout_marginTop="5dip"
-        style="@android:style/Widget.ProgressBar.Horizontal"/>
+      android:id="@+id/progress2"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progressTxt2"
+      android:layout_marginTop="5dip"/>
 
     <TextView
-        android:id="@+id/progressTxt3"
-        android:layout_below="@id/progress2"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/progressTxt3"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progress2"
+      android:layout_marginTop="10dp"/>
 
     <ProgressBar
-        android:id="@+id/progress3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/progressTxt3"
-        android:layout_marginTop="5dip"
-        style="@android:style/Widget.ProgressBar.Horizontal"/>
+      android:id="@+id/progress3"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progressTxt3"
+      android:layout_marginTop="5dip"/>
 
     <TextView
-        android:id="@+id/progressTxt4"
-        android:layout_below="@id/progress3"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+      android:id="@+id/progressTxt4"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progress3"
+      android:layout_marginTop="10dp"/>
 
     <ProgressBar
-        android:id="@+id/progress4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/progressTxt4"
-        android:layout_marginTop="5dip"
-        style="@android:style/Widget.ProgressBar.Horizontal"/>
-</RelativeLayout>
+      android:id="@+id/progress4"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progressTxt4"
+      android:layout_marginTop="5dip"/>
+
+    <Button
+      android:id="@+id/button_download_headers"
+      android:layout_marginTop="20dp"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignParentRight="true"
+      android:layout_alignParentLeft="true"
+      android:layout_below="@id/progress4"
+      android:text="@string/download5"/>
+
+    <TextView
+      android:id="@+id/progressTxt5"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/button_download_headers"
+      android:layout_marginTop="10dp"/>
+
+    <ProgressBar
+      android:id="@+id/progress5"
+      style="@android:style/Widget.ProgressBar.Horizontal"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@id/progressTxt5"
+      android:layout_marginTop="5dip"/>
+  </RelativeLayout>
 </ScrollView>
