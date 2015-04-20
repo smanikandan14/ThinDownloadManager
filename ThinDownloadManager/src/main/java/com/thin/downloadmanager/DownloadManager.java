@@ -74,6 +74,11 @@ public interface DownloadManager {
 	 */
 	public final static int ERROR_DOWNLOAD_CANCELLED = 1008;
 
+	/**
+	 * Error code when there is connection timeout after maximum retries
+	 */
+	public final static int ERROR_CONNECTION_TIMEOUT_AFTER_RETRIES = 1009;
+
 	public int add(DownloadRequest request);
 
 	public int cancel(int downloadId);

@@ -38,12 +38,14 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * Set Priority for request as HIGH or MEDIUM or LOW.
   * Takes Callback listener DownloadStatusListener
   * Use custom Http Headers for a download request
+  * You can set a Retry Policy
 
      ``` java
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
         Uri destinationUri = Uri.parse(this.getExternalCacheDir().toString()+"/test.mp4");
         DownloadRequest downloadRequest = new DownloadRequest(downloadUri)
                 .addCustomHeader("Auth-Token", "YourTokenApiKey")
+                .setRetryPolicy(new DefaultRetryPolicy())
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override

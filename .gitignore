@@ -44,3 +44,5 @@ build-log.xml
 # Temporary file
 *~
 *.swp
+
+*.orig
