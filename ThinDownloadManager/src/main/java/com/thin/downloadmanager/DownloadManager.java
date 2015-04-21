@@ -37,7 +37,12 @@ public interface DownloadManager {
 	 */
 	public final static int STATUS_NOT_FOUND = 1 << 6;
 
-	/**
+    /**
+     * Status when the download is attempted for retry due to connection timeouts.
+     */
+    public final static int STATUS_RETRYING = 1 << 7;
+
+    /**
 	 * Error code when writing download content to the destination file.
 	 */
 	public final static int ERROR_FILE_ERROR = 1001;
