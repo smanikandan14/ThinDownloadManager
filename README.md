@@ -18,7 +18,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ##Usuage
 ####**DownloadStatusListener**
-  * Provides call back option to know when the download is completed, when download failed and reaso for failure, and to know the progress of the download.
+  * Provides call back option to know when the download is completed, failed and reason for failure, and to know the progress of the download.
 ``` java
     //Callback when download is successfully completed
     void onDownloadComplete (int id);
@@ -118,7 +118,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * Unless if you specify download destination to be in external public SDCard location.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
 ##Setup
-Download and include the [JAR](https://github.com/smanikandan14/ThinDownloadManager/raw/master/library-jar/thindownloadmanager-1.0.0.jar) in your project, or add the dependency in your build.gradle:
+Download and include the [JAR](https://github.com/smanikandan14/ThinDownloadManager/raw/master/library-jar/thindownloadmanager-1.0.0.jar) (outdated) in your project, or add the dependency in your build.gradle:
 
 ```java
 dependencies {
@@ -141,7 +141,7 @@ dependencies {
 ##Credits
 https://android.googlesource.com/platform/packages/providers/DownloadProvider/
 
-NOTE: Android's DownloadManager has plenty of features which is not available in ThinDownloadManager. So analyse your requirement thoroughly and decide which one to use.
+NOTE: Android's DownloadManager has plenty of features which is not available in ThinDownloadManager. For ex. pause and continue download when network connectivity changes.So analyse your requirement thoroughly and decide which one to use.
 
 ##License
 ```
