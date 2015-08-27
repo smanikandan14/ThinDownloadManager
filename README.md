@@ -138,6 +138,8 @@ dependencies {
 * Sample app demonstrates with 4 thread pool size and download three different formats of files jpg, mp3, mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-ThinDownloadManager-green.svg?style=flat)](https://android-arsenal.com/details/1/2393)
+
 ##Credits
 https://android.googlesource.com/platform/packages/providers/DownloadProvider/
 
