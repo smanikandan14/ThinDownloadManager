@@ -33,7 +33,7 @@ public interface DownloadManager {
 	public final static int STATUS_FAILED = 1 << 5;
 
 	/**
-	 * Status when the download has failed.
+	 * Status when the download has failed due to broken url or invalid download url
 	 */
 	public final static int STATUS_NOT_FOUND = 1 << 6;
 
