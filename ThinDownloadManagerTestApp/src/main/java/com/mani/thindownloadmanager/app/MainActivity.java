@@ -9,16 +9,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
 import com.thin.downloadmanager.DefaultRetryPolicy;
 import com.thin.downloadmanager.DownloadManager;
 import com.thin.downloadmanager.DownloadRequest;
 import com.thin.downloadmanager.DownloadStatusListener;
 import com.thin.downloadmanager.RetryPolicy;
 import com.thin.downloadmanager.ThinDownloadManager;
-
 import java.io.File;
-
 
 public class MainActivity extends ActionBarActivity {
 
@@ -52,6 +49,7 @@ public class MainActivity extends ActionBarActivity {
     private static final String FILE3 = "https://dl.dropboxusercontent.com/u/25887355/test_song.mp3";
     private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/test_video.mp4";
     private static final String FILE5 = "http://httpbin.org/headers";
+    private static final String FILE6 = "https://dl.dropboxusercontent.com/u/25887355/ThinDownloadManager.tar.gz";
 
     MyDownloadStatusListener myDownloadStatusListener = new MyDownloadStatusListener();
 
@@ -60,6 +58,7 @@ public class MainActivity extends ActionBarActivity {
     int downloadId3;
     int downloadId4;
     int downloadId5;
+    int downloadId6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +143,12 @@ public class MainActivity extends ActionBarActivity {
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadListener(myDownloadStatusListener);
 
+        downloadUri = Uri.parse(FILE6);
+        destinationUri = Uri.parse(filesDir+"/wtfappengine.zip");
+        final DownloadRequest downloadRequest6 = new DownloadRequest(downloadUri)
+            .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+            .setDownloadListener(myDownloadStatusListener);
+
         mDownload1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,9 +188,14 @@ public class MainActivity extends ActionBarActivity {
         mDownload5.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-                if (downloadManager.query(downloadId5) == DownloadManager.STATUS_NOT_FOUND) {
-                    downloadId5 = downloadManager.add(downloadRequest5);
-                }
+                //if (downloadManager.query(downloadId5) == DownloadManager.STATUS_NOT_FOUND) {
+                //    downloadId5 = downloadManager.add(downloadRequest5);
+                //}
+
+              if (downloadManager.query(downloadId6) == DownloadManager.STATUS_NOT_FOUND) {
+                  downloadId6 = downloadManager.add(downloadRequest6);
+              }
+
           }
         });
 
@@ -209,8 +219,7 @@ public class MainActivity extends ActionBarActivity {
         });
 
         mListFiles.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            @Override public void onClick(View v) {
                 showInternalFilesDir();
             }
         });
@@ -297,6 +306,8 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         public void onProgress(int id, long totalBytes, long downloadedBytes, int progress) {
+
+            System.out.println("######## onProgress ###### "+id+" : "+totalBytes+" : "+downloadedBytes+" : "+progress);
             if (id == downloadId1) {
                 mProgress1Txt.setText("Download1 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress1.setProgress(progress);
@@ -315,6 +326,9 @@ public class MainActivity extends ActionBarActivity {
             } else if (id == downloadId5) {
               mProgress5Txt.setText("Download5 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
               mProgress5.setProgress(progress);
+            } else if (id == downloadId6) {
+                mProgress5Txt.setText("Download6 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress5.setProgress(progress);
             }
         }
     }
@@ -331,4 +345,5 @@ public class MainActivity extends ActionBarActivity {
             return ( ""+bytesCompleted+"/"+totalBytes );
         }
     }
+
 }

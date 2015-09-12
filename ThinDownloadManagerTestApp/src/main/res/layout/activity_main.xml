@@ -47,11 +47,20 @@
       android:text="@string/download4"/>
 
     <Button
+        android:id="@+id/button8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/button3"
+        android:layout_marginTop="10dp"
+        android:text="@string/download6"/>
+
+    <Button
       android:id="@+id/button5"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_alignParentLeft="true"
-      android:layout_below="@id/button3"
+      android:layout_below="@id/button8"
       android:layout_marginTop="10dp"
       android:text="@string/start_all"/>
 
@@ -60,7 +69,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_alignParentRight="true"
-      android:layout_below="@id/button3"
+      android:layout_below="@id/button8"
       android:layout_marginTop="10dp"
       android:text="@string/cancel_all"/>
 
