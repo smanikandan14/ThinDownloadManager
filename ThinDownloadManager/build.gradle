@@ -1,4 +1,12 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+version = "1.1.0"
+group = "thindownloadmanager"
+
+def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
+def gitUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 
 android {
     compileSdkVersion 21
@@ -21,6 +29,55 @@ android {
 
     lintOptions {
         abortOnError false
+    }
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "thindownloadmanager"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'A simple formatter library which formats dates in a fuzzy form for display in apps. '
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'smanikandan14'
+                        name 'Mani Selvaraju'
+                        email 'smanikandan14@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
     }
 }
 
