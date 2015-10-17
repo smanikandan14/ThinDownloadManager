@@ -125,6 +125,7 @@ dependencies {
     compile 'com.mani:ThinDownloadManager:1.1.0''
 }
 ```
+Make sure you included jcenter() in your repositories section.
 
 ##Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store :
