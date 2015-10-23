@@ -218,7 +218,7 @@ public class DownloadDispatcher extends Thread {
 
         } finally {
         	try {
-        		in.close();
+        		if (in != null) in.close();
         	} catch (IOException e) {
         		e.printStackTrace();
         	}
@@ -229,7 +229,7 @@ public class DownloadDispatcher extends Thread {
             } catch (IOException e) {
             } finally {
             	try {
-            		out.close();
+            		if (out != null) out.close();
             	} catch (IOException e) {
             		e.printStackTrace();
             	}
