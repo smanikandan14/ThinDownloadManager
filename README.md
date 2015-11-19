@@ -67,15 +67,14 @@ Thin DownloadManager is an android library primary to download files and to avoi
      ```
 
 ####**ThinDownloadManager**
-  * You can pass the thread pool size as an argument in the constructor. Size should be in range 1 - 4. If no argument is passed the thread pool size is 1.
+  * The number of threads used to perform parallel download is determined by the available processors on the device. Uses `Runtime.getRuntime().availableProcessors()` api.
+  
   	``` java
     private ThinDownloadManager downloadManager;
-    private static final int DOWNLOAD_THREAD_POOL_SIZE = 2;
-
     .....
-
-    downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
-
+    
+    downloadManager = new ThinDownloadManager();
+    
     ....
 ```
 
@@ -122,7 +121,7 @@ Include below line your build.gradle:
 
 ```java
 dependencies {
-    compile 'com.mani:ThinDownloadManager:1.1.0''
+    compile 'com.mani:ThinDownloadManager:1.2.0''
 }
 ```
 Make sure you included jcenter() in your repositories section.
@@ -145,6 +144,9 @@ Make sure you included jcenter() in your repositories section.
 https://android.googlesource.com/platform/packages/providers/DownloadProvider/
 
 NOTE: Android's DownloadManager has plenty of features which is not available in ThinDownloadManager. For ex. pause and continue download when network connectivity changes.So analyse your requirement thoroughly and decide which one to use.
+
+https://www.virag.si/2015/01/publishing-gradle-android-library-to-jcenter/ 
+Steps for uploading to bintray.
 
 ##License
 ```
