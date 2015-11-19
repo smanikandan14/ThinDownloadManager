@@ -11,9 +11,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DownloadRequestQueue {
 
-	/** Specifies default number of download dispatcher threads. */
-	private static final int DEFAULT_DOWNLOAD_THREAD_POOL_SIZE = 1;
-
 	/**
 	 * The set of all requests currently being processed by this RequestQueue. A Request will be in this set if it is waiting in any queue or currently being processed by any dispatcher.
 	 */
@@ -80,20 +77,20 @@ public class DownloadRequestQueue {
 	 * Default constructor.
 	 */
 	public DownloadRequestQueue() {
-		mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
+		int processors = Runtime.getRuntime().availableProcessors();
+		mDownloadDispatchers = new DownloadDispatcher[processors];
 		mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
 	}
 
 	/**
 	 * Creates the download dispatchers workers pool.
+	 *
+	 * Deprecated:
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
 		mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
-		if (threadPoolSize > 0 && threadPoolSize <= 4) {
-			mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
-		} else {
-			mDownloadDispatchers = new DownloadDispatcher[DEFAULT_DOWNLOAD_THREAD_POOL_SIZE];
-		}
+		int processors = Runtime.getRuntime().availableProcessors();
+		mDownloadDispatchers = new DownloadDispatcher[processors];
 	}
 
 	public void start() {

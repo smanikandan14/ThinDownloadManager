@@ -103,7 +103,7 @@ public class DownloadDispatcher extends Thread {
 
 
     private void executeDownload(String downloadUrl) {
-        URL url = null;
+        URL url;
         try {
             url = new URL(downloadUrl);
         } catch (MalformedURLException e) {
@@ -132,7 +132,10 @@ public class DownloadDispatcher extends Thread {
          	
             final int responseCode = conn.getResponseCode();
             
-            Log.v(TAG, "Response code obtained for downloaded Id "+mRequest.getDownloadId()+" : httpResponse Code "+responseCode);
+            Log.v(TAG, "Response code obtained for downloaded Id "
+                + mRequest.getDownloadId()
+                + " : httpResponse Code "
+                + responseCode);
             
             switch (responseCode) {
                 case HTTP_OK:
@@ -140,7 +143,7 @@ public class DownloadDispatcher extends Thread {
                     if (readResponseHeaders(conn) == 1) {
                         transferData(conn);
                     } else {
-                        updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_SIZE_UNKNOWN, "Can't know size of download, giving up");
+                        updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_SIZE_UNKNOWN, "Transfer-Encoding not found as well as can't know size of download, giving up");
                     }
                     return;
                 case HTTP_MOVED_PERM:
@@ -181,10 +184,10 @@ public class DownloadDispatcher extends Thread {
         } catch (ConnectTimeoutException e) {
             e.printStackTrace();
             attemptRetryOnTimeOutException();
-        } catch(IOException e){
+        } catch(IOException e) {
             e.printStackTrace();
             updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
-        } finally{
+        } finally {
             if (conn != null) {
                 conn.disconnect();
             }
@@ -218,15 +221,22 @@ public class DownloadDispatcher extends Thread {
 
         } finally {
         	try {
-        		if (in != null) in.close();
+        		if (in != null) {
+                    in.close();
+                }
         	} catch (IOException e) {
         		e.printStackTrace();
         	}
 
             try {
-                if (out != null) out.flush();
-                if (outFd != null) outFd.sync();
+                if (out != null) {
+                    out.flush();
+                }
+                if (outFd != null) {
+                    outFd.sync();
+                }
             } catch (IOException e) {
+                e.printStackTrace();
             } finally {
             	try {
             		if (out != null) out.close();
@@ -293,16 +303,17 @@ public class DownloadDispatcher extends Thread {
 
     private int readResponseHeaders( HttpURLConnection conn){
         final String transferEncoding = conn.getHeaderField("Transfer-Encoding");
+        mContentLength = -1;
 
         if (transferEncoding == null) {
             mContentLength = getHeaderFieldLong(conn, "Content-Length", -1);
         } else {
             Log.v(TAG, "Ignoring Content-Length since Transfer-Encoding is also defined for Downloaded Id " + mRequest.getDownloadId());
-            mContentLength = -1;
         }
 
-        if( mContentLength == -1
-                && (transferEncoding == null || !transferEncoding.equalsIgnoreCase("chunked")) ) {
+        if (mContentLength != -1) {
+            return 1;
+        } else if(transferEncoding == null || !transferEncoding.equalsIgnoreCase("chunked")) {
             return -1;
         } else {
             return 1;

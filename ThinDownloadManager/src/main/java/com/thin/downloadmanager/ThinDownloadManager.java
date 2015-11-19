@@ -15,6 +15,9 @@ public class ThinDownloadManager implements DownloadManager {
 
     /** Constructor taking MAX THREAD POOL SIZE  Allows maximum of 4 threads.
     * Any number higher than four or less than one wont be respected.
+     *
+     * Deprecated use Default Constructor. As the thread pool size will not respected anymore through this constructor.
+     * Thread pool size is determined with the number of available processors on the device.
     **/
     public ThinDownloadManager(int threadPoolSize) {
         mRequestQueue = new DownloadRequestQueue(threadPoolSize);

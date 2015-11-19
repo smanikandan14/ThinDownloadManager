@@ -2,8 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "1.1.0"
-group = "thindownloadmanager"
+version = "1.2.0"
+group = "com.mani"
 
 def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 def gitUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
@@ -55,7 +55,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name 'A simple formatter library which formats dates in a fuzzy form for display in apps. '
+                name 'To download files and to avoid using DOWNLOAD_WITHOUT_NOTIFICATION permission if you are using Android\'s DownloadManager in your apps'
                 url siteUrl
                 licenses {
                     license {
