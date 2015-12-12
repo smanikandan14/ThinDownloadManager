@@ -1,5 +1,11 @@
 package com.thin.downloadmanager;
 
+/**
+ * A Listener for the download progress.
+ *
+ * @deprecated use {@link StatusListener} instead
+ */
+@Deprecated
 public interface DownloadStatusListener {
 
     //Callback when download is successfully completed

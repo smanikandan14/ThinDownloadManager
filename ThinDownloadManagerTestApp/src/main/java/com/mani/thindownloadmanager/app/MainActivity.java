@@ -14,6 +14,7 @@ import com.thin.downloadmanager.DownloadManager;
 import com.thin.downloadmanager.DownloadRequest;
 import com.thin.downloadmanager.DownloadStatusListener;
 import com.thin.downloadmanager.RetryPolicy;
+import com.thin.downloadmanager.StatusListener;
 import com.thin.downloadmanager.ThinDownloadManager;
 import java.io.File;
 
@@ -112,19 +113,22 @@ public class MainActivity extends ActionBarActivity {
         final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setRetryPolicy(retryPolicy)
-                .setDownloadListener(myDownloadStatusListener);
+                .setDownloadContext("Download1")
+                .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE2);
         destinationUri = Uri.parse(filesDir+"/test_photo2.jpg");
         final DownloadRequest downloadRequest2 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
-                .setDownloadListener(myDownloadStatusListener);
+                .setDownloadContext("Download2")
+                .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE3);
         destinationUri = Uri.parse(filesDir+"/test_song.mp3");
         final DownloadRequest downloadRequest3 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadListener(myDownloadStatusListener);
+                .setDownloadContext("Download3")
+                .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE4);
         destinationUri = Uri.parse(filesDir+"/test_video.mp4");
@@ -133,7 +137,8 @@ public class MainActivity extends ActionBarActivity {
         final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)
                 .setRetryPolicy(retryPolicy)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadListener(myDownloadStatusListener);
+                .setDownloadContext("Download4")
+                .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE5);
         destinationUri = Uri.parse(filesDir+"/headers.json");
@@ -141,13 +146,15 @@ public class MainActivity extends ActionBarActivity {
                 .addCustomHeader("Auth-Token", "myTokenKey")
                 .addCustomHeader("User-Agent", "Thin/Android")
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadListener(myDownloadStatusListener);
+                .setDownloadContext("Download5")
+                .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE6);
         destinationUri = Uri.parse(filesDir+"/wtfappengine.zip");
         final DownloadRequest downloadRequest6 = new DownloadRequest(downloadUri)
-            .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-            .setDownloadListener(myDownloadStatusListener);
+                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext("Download6")
+                .setStatusListener(myDownloadStatusListener);
 
         mDownload1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -262,28 +269,30 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    class MyDownloadStatusListener implements DownloadStatusListener {
+    class MyDownloadStatusListener implements StatusListener {
 
         @Override
-        public void onDownloadComplete(int id) {
+        public void onDownloadComplete(DownloadRequest request) {
+            final int id = request.getDownloadId();
             if (id == downloadId1) {
-                mProgress1Txt.setText("Download1 id: "+id+" Completed");
+                mProgress1Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
 
             } else if (id == downloadId2) {
-                mProgress2Txt.setText("Download2 id: "+id+" Completed");
+                mProgress2Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText("Download3 id: "+id+" Completed");
+                mProgress3Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText("Download4 id: "+id+" Completed");
+                mProgress4Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
             } else if (id == downloadId5) {
-              mProgress5Txt.setText("Download5 id: "+id+" Completed");
+              mProgress5Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
             }
         }
 
         @Override
-        public void onDownloadFailed(int id, int errorCode, String errorMessage) {
+        public void onDownloadFailed(DownloadRequest request, int errorCode, String errorMessage) {
+            final int id = request.getDownloadId();
             if (id == downloadId1) {
                 mProgress1Txt.setText("Download1 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress1.setProgress(0);
@@ -305,7 +314,8 @@ public class MainActivity extends ActionBarActivity {
         }
 
         @Override
-        public void onProgress(int id, long totalBytes, long downloadedBytes, int progress) {
+        public void onProgress(DownloadRequest request, long totalBytes, long downloadedBytes, int progress) {
+            int id = request.getDownloadId();
 
             System.out.println("######## onProgress ###### "+id+" : "+totalBytes+" : "+downloadedBytes+" : "+progress);
             if (id == downloadId1) {

@@ -381,7 +381,7 @@ public class DownloadDispatcher extends Thread {
     }
 
     public void updateDownloadProgress(int progress, long downloadedBytes) {
-        if(mRequest.getDownloadListener() != null) {
+        if (mRequest.getDownloadListener() != null || mRequest.getStatusListener() != null) {
             mDelivery.postProgressUpdate(mRequest,mContentLength, downloadedBytes, progress);
         }
     }
