@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "1.2.0"
+version = "1.2.1"
 group = "com.mani"
 
 def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
