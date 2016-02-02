@@ -145,7 +145,7 @@ Make sure you included jcenter() in your repositories section.
 ##Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store :
 
-<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge-border.png" /></a>
+<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" width="250" height="100" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" ></a>
 
 * Sample app demonstrates with 4 thread pool size and download three different formats of files jpg, mp3, mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
