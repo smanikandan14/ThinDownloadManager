@@ -17,7 +17,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 
 ##Usuage
-####**DownloadStatusListener**
+####**DownloadStatusListener (Deprecated)**
   * Provides call back option to know when the download is completed, failed and reason for failure, and to know the progress of the download.
 ``` java
     //Callback when download is successfully completed
@@ -29,6 +29,21 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
     //Callback provides download progress
     void onProgress (int id, long totalBytes, long downlaodedBytes, int progress);
+
+```
+####**DownloadStatusListenerV1**
+  * Provides call back option to know when the download is completed, failed and reason for failure, and to know the progress of the download. DownloadRequest is given back in the callback so that you can easily set some Object as context to download request and get the context object back from the request object.
+``` java
+    //Callback when download is successfully completed
+    void onDownloadComplete(DownloadRequest downloadRequest);
+
+    //Callback if download is failed. Corresponding error code and
+    //error messages are provided
+    void onDownloadFailed(DownloadRequest downloadRequest, int errorCode, String errorMessage);
+
+
+    //Callback provides download progress
+    void onProgress(DownloadRequest downloadRequest, long totalBytes, long downloadedBytes, int progress);
 
 ```
 
@@ -47,6 +62,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
                 .addCustomHeader("Auth-Token", "YourTokenApiKey")
                 .setRetryPolicy(new DefaultRetryPolicy())
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext(downloadContextObject)//Optional
                 .setDownloadListener(new DownloadStatusListener() {
                     @Override
                     public void onDownloadComplete(int id) {
@@ -121,7 +137,7 @@ Include below line your build.gradle:
 
 ```java
 dependencies {
-    compile 'com.mani:ThinDownloadManager:1.2.0''
+    compile 'com.mani:ThinDownloadManager:1.2.1''
 }
 ```
 Make sure you included jcenter() in your repositories section.
@@ -129,11 +145,7 @@ Make sure you included jcenter() in your repositories section.
 ##Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store :
 
-
-<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app">
-  <img alt="Get it on Google Play"
-       src="https://developer.android.com/images/brand/en_app_rgb_wo_60.png" />
-</a>
+<a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge-border.png" /></a>
 
 * Sample app demonstrates with 4 thread pool size and download three different formats of files jpg, mp3, mp4.
 * The files are downloaded to applications sandboxed files directory. */data/data/<package>/files.
