@@ -3,7 +3,7 @@ package com.thin.downloadmanager;
 /**
  * A Listener for the download progress.
  *
- * @deprecated use {@link StatusListener} instead
+ * @deprecated use {@link DownloadStatusListenerV1} instead
  */
 @Deprecated
 public interface DownloadStatusListener {

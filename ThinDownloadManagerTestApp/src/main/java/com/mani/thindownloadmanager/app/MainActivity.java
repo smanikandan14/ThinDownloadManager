@@ -3,7 +3,7 @@ package com.mani.thindownloadmanager.app;
 import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -12,13 +12,12 @@ import android.widget.TextView;
 import com.thin.downloadmanager.DefaultRetryPolicy;
 import com.thin.downloadmanager.DownloadManager;
 import com.thin.downloadmanager.DownloadRequest;
-import com.thin.downloadmanager.DownloadStatusListener;
+import com.thin.downloadmanager.DownloadStatusListenerV1;
 import com.thin.downloadmanager.RetryPolicy;
-import com.thin.downloadmanager.StatusListener;
 import com.thin.downloadmanager.ThinDownloadManager;
 import java.io.File;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private ThinDownloadManager downloadManager;
     private static final int DOWNLOAD_THREAD_POOL_SIZE = 4;
@@ -52,7 +51,8 @@ public class MainActivity extends ActionBarActivity {
     private static final String FILE5 = "http://httpbin.org/headers";
     private static final String FILE6 = "https://dl.dropboxusercontent.com/u/25887355/ThinDownloadManager.tar.gz";
 
-    MyDownloadStatusListener myDownloadStatusListener = new MyDownloadStatusListener();
+    MyDownloadDownloadStatusListenerV1
+        myDownloadStatusListener = new MyDownloadDownloadStatusListenerV1();
 
     int downloadId1;
     int downloadId2;
@@ -269,7 +269,7 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    class MyDownloadStatusListener implements StatusListener {
+    class MyDownloadDownloadStatusListenerV1 implements DownloadStatusListenerV1 {
 
         @Override
         public void onDownloadComplete(DownloadRequest request) {

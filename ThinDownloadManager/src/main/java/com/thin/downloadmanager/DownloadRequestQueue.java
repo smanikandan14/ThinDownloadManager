@@ -14,10 +14,10 @@ public class DownloadRequestQueue {
 	/**
 	 * The set of all requests currently being processed by this RequestQueue. A Request will be in this set if it is waiting in any queue or currently being processed by any dispatcher.
 	 */
-	private Set<DownloadRequest> mCurrentRequests = new HashSet<DownloadRequest>();
+	private Set<DownloadRequest> mCurrentRequests = new HashSet<>();
 
 	/** The queue of requests that are actually going out to the network. */
-	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue = new PriorityBlockingQueue<DownloadRequest>();
+	private PriorityBlockingQueue<DownloadRequest> mDownloadQueue = new PriorityBlockingQueue<>();
 
 	/** The download dispatchers */
 	private DownloadDispatcher[] mDownloadDispatchers;

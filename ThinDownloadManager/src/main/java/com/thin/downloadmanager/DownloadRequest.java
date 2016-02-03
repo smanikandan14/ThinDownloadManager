@@ -7,6 +7,17 @@ import java.util.HashMap;
 public class DownloadRequest implements Comparable<DownloadRequest> {
 
     /**
+     * Priority values.  Requests will be processed from higher priorities to
+     * lower priorities, in FIFO order.
+     */
+    public enum Priority {
+        LOW,
+        NORMAL,
+        HIGH,
+        IMMEDIATE
+    }
+
+    /**
      * Tells the current download state of this request
      */
     private int mDownloadState;
@@ -41,7 +52,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private DownloadStatusListener mDownloadListener;
 
-    private StatusListener mStatusListener;
+    private DownloadStatusListenerV1 mDownloadStatusListenerV1;
 
     private Object mDownloadContext;
 
@@ -57,7 +68,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         if (scheme == null || (!scheme.equals("http") && !scheme.equals("https"))) {
             throw new IllegalArgumentException("Can only download HTTP/HTTPS URIs: " + uri);
         }
-        mCustomHeader = new HashMap<String, String>();
+        mCustomHeader = new HashMap<>();
         mDownloadState = DownloadManager.STATUS_PENDING;
         mUri = uri;
     }
@@ -152,18 +163,18 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      *
      * @return  the status listener
      */
-    StatusListener getStatusListener() {
-        return mStatusListener;
+    DownloadStatusListenerV1 getStatusListener() {
+        return mDownloadStatusListenerV1;
     }
 
     /**
      * Sets the status listener for this download request. Download manager sends progress,
      * failure and completion updates to this listener for this download request.
      *
-     * @param statusListener the status listener for this download
+     * @param downloadStatusListenerV1 the status listener for this download
      */
-    public DownloadRequest setStatusListener(StatusListener statusListener) {
-        mStatusListener = statusListener;
+    public DownloadRequest setStatusListener(DownloadStatusListenerV1 downloadStatusListenerV1) {
+        mDownloadStatusListenerV1 = downloadStatusListenerV1;
         return this;
     }
 
@@ -233,16 +244,5 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return left == right ?
                 this.mDownloadId - other.mDownloadId :
                 right.ordinal() - left.ordinal();
-    }
-
-    /**
-     * Priority values.  Requests will be processed from higher priorities to
-     * lower priorities, in FIFO order.
-     */
-    public enum Priority {
-        LOW,
-        NORMAL,
-        HIGH,
-        IMMEDIATE
     }
 }

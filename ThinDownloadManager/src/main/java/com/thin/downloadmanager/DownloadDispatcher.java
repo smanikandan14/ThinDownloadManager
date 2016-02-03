@@ -2,9 +2,6 @@ package com.thin.downloadmanager;
 
 import android.os.Process;
 import android.util.Log;
-
-import org.apache.http.conn.ConnectTimeoutException;
-
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -20,6 +17,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
+import org.apache.http.conn.ConnectTimeoutException;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
@@ -207,17 +205,38 @@ public class DownloadDispatcher extends Thread {
             }
 
     		File destinationFile = new File(mRequest.getDestinationURI().getPath().toString());
-    		
+
+            boolean errorOccurred = false;
+            // Create destination file if it doesn't exists
+            if (destinationFile.exists() == false) {
+                try {
+                    destinationFile.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    errorOccurred = true;
+                    updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
+                        "Error in creating destination file");
+                }
+            }
+
             try {
                 out = new FileOutputStream(destinationFile, true);
                 outFd = ((FileOutputStream) out).getFD();
             } catch (IOException e) {
             	e.printStackTrace();
-                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Error in writing download contents to the destination file");
             }
 
-            // Start streaming data
-            transferData(in, out);
+            if (in == null && errorOccurred == false) {
+                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Error in creating input stream");
+
+            } else if (out == null && errorOccurred == false) {
+
+                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Error in writing download contents to the destination file");
+
+            } else {
+                // Start streaming data
+                transferData(in, out);
+            }
 
         } finally {
         	try {

@@ -5,7 +5,7 @@ package com.thin.downloadmanager;
  *
  * @author Hari Gangadharan
  */
-public interface StatusListener {
+public interface DownloadStatusListenerV1 {
 
     /**
      * This method is invoked when download is complete.

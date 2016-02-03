@@ -9,12 +9,12 @@ def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 def gitUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 23
     buildToolsVersion "21.0.2"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 1
         versionName "1"
     }

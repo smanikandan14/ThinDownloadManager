@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 23
     buildToolsVersion "21.0.2"
 
     defaultConfig {
         applicationId "com.mani.thindownloadmanager.app"
         minSdkVersion 9
-        targetSdkVersion 21
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -19,6 +19,6 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:21.0.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
     compile project(':ThinDownloadManager')
 }
