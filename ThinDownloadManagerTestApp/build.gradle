@@ -20,5 +20,5 @@ android {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:23.0.0'
-    compile project(':ThinDownloadManager')
+    compile 'com.mani:ThinDownloadManager:1.2.2'
 }

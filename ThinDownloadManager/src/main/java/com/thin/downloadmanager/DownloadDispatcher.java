@@ -382,26 +382,20 @@ public class DownloadDispatcher extends Thread {
     }
 
     public void updateDownloadComplete() {
+        mDelivery.postDownloadComplete(mRequest);
         mRequest.setDownloadState(DownloadManager.STATUS_SUCCESSFUL);
-        if(mRequest.getDownloadListener() != null) {
-            mDelivery.postDownloadComplete(mRequest);
-            mRequest.finish();
-        }
+        mRequest.finish();
     }
 
     public void updateDownloadFailed(int errorCode, String errorMsg) {
         shouldAllowRedirects = false;
         mRequest.setDownloadState(DownloadManager.STATUS_FAILED);
         cleanupDestination();
-        if(mRequest.getDownloadListener() != null) {
-            mDelivery.postDownloadFailed(mRequest, errorCode, errorMsg);
-            mRequest.finish();
-        }
+        mDelivery.postDownloadFailed(mRequest, errorCode, errorMsg);
+        mRequest.finish();
     }
 
     public void updateDownloadProgress(int progress, long downloadedBytes) {
-        if (mRequest.getDownloadListener() != null || mRequest.getStatusListener() != null) {
-            mDelivery.postProgressUpdate(mRequest,mContentLength, downloadedBytes, progress);
-        }
+        mDelivery.postProgressUpdate(mRequest,mContentLength, downloadedBytes, progress);
     }
 }
