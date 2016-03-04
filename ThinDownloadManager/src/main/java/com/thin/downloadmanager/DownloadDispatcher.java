@@ -370,8 +370,8 @@ public class DownloadDispatcher extends Thread {
      * the downloaded file.
      */
     private void cleanupDestination() {
-        Log.d(TAG, "cleanupDestination() deleting " + mRequest.getDestinationURI().toString());
-        File destinationFile = new File(mRequest.getDestinationURI().toString());
+        Log.d(TAG, "cleanupDestination() deleting " + mRequest.getDestinationURI().getPath());
+        File destinationFile = new File(mRequest.getDestinationURI().getPath());
         if(destinationFile.exists()) {
             destinationFile.delete();
         }
