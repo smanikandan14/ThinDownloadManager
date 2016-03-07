@@ -1,5 +1,7 @@
 package com.thin.downloadmanager;
 
+import android.os.Handler;
+
 public class ThinDownloadManager implements DownloadManager {
 
     /** Download request queue takes care of handling the request based on priority. */
@@ -10,6 +12,16 @@ public class ThinDownloadManager implements DownloadManager {
     */
     public ThinDownloadManager() {
         mRequestQueue = new DownloadRequestQueue();
+        mRequestQueue.start();
+    }
+
+    /**
+     * Construct with provided callback handler
+     *
+     * @param callbackHandler
+     */
+    public ThinDownloadManager(Handler callbackHandler) {
+        mRequestQueue = new DownloadRequestQueue(callbackHandler);
         mRequestQueue.start();
     }
 
