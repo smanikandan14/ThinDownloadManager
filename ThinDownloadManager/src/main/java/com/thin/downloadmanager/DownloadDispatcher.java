@@ -24,6 +24,7 @@ import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class DownloadDispatcher extends Thread {
@@ -67,7 +68,7 @@ public class DownloadDispatcher extends Thread {
         mQueue = queue;
         mDelivery = delivery;
     }
-    
+
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
@@ -89,7 +90,7 @@ public class DownloadDispatcher extends Thread {
                     }
                     return;
                 }
-                continue;    			
+                continue;
     		}
     	}
     }
@@ -127,14 +128,14 @@ public class DownloadDispatcher extends Thread {
             // Status Connecting is set here before
             // urlConnection is trying to connect to destination.
          	updateDownloadState(DownloadManager.STATUS_CONNECTING);
-         	
+
             final int responseCode = conn.getResponseCode();
-            
+
             Log.v(TAG, "Response code obtained for downloaded Id "
                 + mRequest.getDownloadId()
                 + " : httpResponse Code "
                 + responseCode);
-            
+
             switch (responseCode) {
                 case HTTP_OK:
                     shouldAllowRedirects = false;
@@ -171,6 +172,8 @@ public class DownloadDispatcher extends Thread {
                 case HTTP_INTERNAL_ERROR:
                     updateDownloadFailed(HTTP_INTERNAL_ERROR, conn.getResponseMessage());
                     break;
+                case HTTP_UNAUTHORIZED:
+                    updateDownloadFailed(HTTP_UNAUTHORIZED, conn.getResponseMessage());
                 default:
                     updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE, "Unhandled HTTP response:" + responseCode +" message:" +conn.getResponseMessage());
                     break;
@@ -191,7 +194,7 @@ public class DownloadDispatcher extends Thread {
             }
         }
 	}
-	
+
     private void transferData(HttpURLConnection conn) {
         InputStream in = null;
         OutputStream out = null;
@@ -265,7 +268,7 @@ public class DownloadDispatcher extends Thread {
             }
         }
     }
-    
+
     private void transferData(InputStream in, OutputStream out) {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
