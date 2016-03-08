@@ -3,6 +3,7 @@ package com.thin.downloadmanager;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -92,9 +93,7 @@ public class DownloadRequestQueue {
 	 * Default constructor.
 	 */
 	public DownloadRequestQueue() {
-		int processors = Runtime.getRuntime().availableProcessors();
-		mDownloadDispatchers = new DownloadDispatcher[processors];
-		mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
+		initialize(new Handler(Looper.getMainLooper()));
 	}
 
 	/**
@@ -103,9 +102,20 @@ public class DownloadRequestQueue {
 	 * Deprecated:
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
-		mDelivery = new CallBackDelivery(new Handler(Looper.getMainLooper()));
-		int processors = Runtime.getRuntime().availableProcessors();
-		mDownloadDispatchers = new DownloadDispatcher[processors];
+		initialize(new Handler(Looper.getMainLooper()));
+	}
+
+	/**
+	 * Construct with provided callback handler.
+	 *
+	 * @param callbackHandler
+	 */
+	public DownloadRequestQueue(Handler callbackHandler) throws InvalidParameterException {
+		if (callbackHandler == null) {
+			throw new InvalidParameterException("callbackHandler must not be null");
+		}
+
+		initialize(callbackHandler);
 	}
 
 	public void start() {
@@ -122,7 +132,7 @@ public class DownloadRequestQueue {
 	// Package-Private methods.
 	/**
 	 * Generates a download id for the request and adds the download request to the download request queue for the dispatchers pool to act on immediately.
-	 * 
+	 *
 	 * @param request
 	 * @return downloadId
 	 */
@@ -144,7 +154,7 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Returns the current download state for a download request.
-	 * 
+	 *
 	 * @param downloadId
 	 * @return
 	 */
@@ -176,7 +186,7 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Cancel a particular download in progress. Returns 1 if the download Id is found else returns 0.
-	 * 
+	 *
 	 * @param downloadId
 	 * @return int
 	 */
@@ -219,7 +229,7 @@ public class DownloadRequestQueue {
 
 		if (mDownloadDispatchers != null) {
 			stop();
-			
+
 			for (int i = 0; i < mDownloadDispatchers.length; i++) {
 				mDownloadDispatchers[i] = null;
 			}
@@ -229,6 +239,17 @@ public class DownloadRequestQueue {
 	}
 
 	// Private methods.
+
+	/**
+	 * Perform construction.
+	 *
+	 * @param callbackHandler
+	 */
+	private void initialize(Handler callbackHandler) {
+		int processors = Runtime.getRuntime().availableProcessors();
+		mDownloadDispatchers = new DownloadDispatcher[processors];
+		mDelivery = new CallBackDelivery(callbackHandler);
+	}
 
 	/**
 	 * Stops download dispatchers.
