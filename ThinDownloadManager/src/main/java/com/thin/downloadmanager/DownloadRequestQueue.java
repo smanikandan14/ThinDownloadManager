@@ -3,6 +3,7 @@ package com.thin.downloadmanager;
 import android.os.Handler;
 import android.os.Looper;
 
+import java.security.InvalidParameterException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -92,7 +93,7 @@ public class DownloadRequestQueue {
 	 * Default constructor.
 	 */
 	public DownloadRequestQueue() {
-		doConstruct(new Handler(Looper.getMainLooper()));
+		initialize(new Handler(Looper.getMainLooper()));
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class DownloadRequestQueue {
 	 * Deprecated:
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
-		doConstruct(new Handler(Looper.getMainLooper()));
+		initialize(new Handler(Looper.getMainLooper()));
 	}
 
 	/**
@@ -109,12 +110,12 @@ public class DownloadRequestQueue {
 	 *
 	 * @param callbackHandler
 	 */
-	public DownloadRequestQueue(Handler callbackHandler) {
-		if(callbackHandler == null) {
-			callbackHandler = new Handler(Looper.getMainLooper());
+	public DownloadRequestQueue(Handler callbackHandler) throws InvalidParameterException {
+		if (callbackHandler == null) {
+			throw new InvalidParameterException("callbackHandler must not be null");
 		}
 
-		doConstruct(callbackHandler);
+		initialize(callbackHandler);
 	}
 
 	public void start() {
@@ -244,7 +245,7 @@ public class DownloadRequestQueue {
 	 *
 	 * @param callbackHandler
 	 */
-	private void doConstruct(Handler callbackHandler) {
+	private void initialize(Handler callbackHandler) {
 		int processors = Runtime.getRuntime().availableProcessors();
 		mDownloadDispatchers = new DownloadDispatcher[processors];
 		mDelivery = new CallBackDelivery(callbackHandler);
