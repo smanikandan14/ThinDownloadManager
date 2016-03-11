@@ -27,6 +27,7 @@ import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
 public class DownloadDispatcher extends Thread {
+    private final boolean DEBUG = false;
 
     /** The queue of download requests to service. */
     private final BlockingQueue<DownloadRequest> mQueue;
@@ -112,7 +113,18 @@ public class DownloadDispatcher extends Thread {
         HttpURLConnection conn = null;
 
         try {
-            conn = (HttpURLConnection) url.openConnection();
+            if (mRequest.isWifiOnly()) {
+                conn = NetworkHelper.getInstance(mRequest.getAppContext()).getUrlConnectionOnWifiNetwork(url);
+
+                // If the wifi network is disabled or otherwise unavailable.
+                if (conn == null) {
+                    updateDownloadFailed(DownloadManager.ERROR_WIFI_UNAVAILABLE, "WiFi network is unavailable during UrlConnection creation");
+                    return;
+                }
+            } else {
+                conn = (HttpURLConnection) url.openConnection();
+            }
+
             conn.setInstanceFollowRedirects(false);
             conn.setConnectTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
             conn.setReadTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
@@ -308,6 +320,7 @@ public class DownloadDispatcher extends Thread {
         try {
             return entityStream.read(data);
         } catch (IOException ex) {
+            if (DEBUG) Log.d(TAG, "readFromResponse() - IOException thrown");
             if ("unexpected end of stream".equals(ex.getMessage())) {
                 return -1;
             }

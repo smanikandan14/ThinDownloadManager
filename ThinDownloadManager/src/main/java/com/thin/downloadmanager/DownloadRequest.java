@@ -1,7 +1,9 @@
 package com.thin.downloadmanager;
 
+import android.content.Context;
 import android.net.Uri;
 
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 
 public class DownloadRequest implements Comparable<DownloadRequest> {
@@ -50,11 +52,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private boolean mDeleteDestinationFileOnFailure = true;
 
+    private boolean mWifiOnly = false;
+
     private DownloadRequestQueue mRequestQueue;
 
     private DownloadStatusListener mDownloadListener;
 
     private DownloadStatusListenerV1 mDownloadStatusListenerV1;
+
+    private Context mContext;
 
     private Object mDownloadContext;
 
@@ -145,6 +151,29 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         this.mDownloadState = mDownloadState;
     }
 
+    public boolean isStateActive() {
+        boolean isActive;
+
+        switch (mDownloadState) {
+            case DownloadManager.STATUS_STARTED:
+            case DownloadManager.STATUS_CONNECTING:
+            case DownloadManager.STATUS_RETRYING:
+            case DownloadManager.STATUS_RUNNING:
+                isActive = true;
+                break;
+            case DownloadManager.STATUS_PENDING:
+            case DownloadManager.STATUS_NOT_FOUND:
+            case DownloadManager.STATUS_SUCCESSFUL:
+            case DownloadManager.STATUS_FAILED:
+                isActive = false;
+                break;
+            default:
+                isActive = false;
+        }
+
+        return isActive;
+    }
+
     DownloadStatusListener getDownloadListener() {
         return mDownloadListener;
     }
@@ -218,6 +247,26 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     public DownloadRequest setDeleteDestinationFileOnFailure(boolean deleteOnFailure) {
         this.mDeleteDestinationFileOnFailure = deleteOnFailure;
         return this;
+    }
+
+    public boolean isWifiOnly() {
+        return mWifiOnly;
+    }
+
+    /**
+     * Set if file should only be downloaded on WiFi. Use is optional: default is don't care.
+     * @param wifiOnly
+     * @param context Used to get network service.
+     */
+    public DownloadRequest setWifiOnly(boolean wifiOnly, Context context) throws InvalidParameterException {
+        if(wifiOnly && context==null) throw new InvalidParameterException("Context cannot be null");
+        mContext = context.getApplicationContext();
+        mWifiOnly = wifiOnly;
+        return this;
+    }
+
+    public Context getAppContext() {
+        return mContext;
     }
 
     /**
