@@ -216,6 +216,7 @@ public class DownloadDispatcher extends Thread {
                     errorCreatingDestinationFile = true;
                     updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
                         "Error in creating destination file");
+                    return; // escape to finally to skip transferData()
                 }
             }
 
