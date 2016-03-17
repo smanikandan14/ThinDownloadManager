@@ -393,7 +393,7 @@ public class DownloadDispatcher extends Thread {
     public void updateDownloadFailed(int errorCode, String errorMsg) {
         shouldAllowRedirects = false;
         mRequest.setDownloadState(DownloadManager.STATUS_FAILED);
-        cleanupDestination();
+        if(mRequest.getDeleteOnFailure()) cleanupDestination();
         mDelivery.postDownloadFailed(mRequest, errorCode, errorMsg);
         mRequest.finish();
     }
