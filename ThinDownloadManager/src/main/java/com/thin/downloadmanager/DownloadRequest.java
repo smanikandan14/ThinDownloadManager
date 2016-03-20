@@ -48,6 +48,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     private boolean mCanceled = false;
 
+    private boolean mDeleteOnFailure = true;
+
     private DownloadRequestQueue mRequestQueue;
 
     private DownloadStatusListener mDownloadListener;
@@ -203,6 +205,17 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     public DownloadRequest setDestinationURI(Uri destinationURI) {
         this.mDestinationURI = destinationURI;
         return this;
+    }
+
+    public boolean getDeleteOnFailure() {
+        return mDeleteOnFailure;
+    }
+
+    /**
+     * Set if file should be deleted on download failure. Use is optional: default is to delete.
+     */
+    public void setDeleteOnFailure(boolean deleteOnFailure) {
+        mDeleteOnFailure = deleteOnFailure;
     }
 
     /**
