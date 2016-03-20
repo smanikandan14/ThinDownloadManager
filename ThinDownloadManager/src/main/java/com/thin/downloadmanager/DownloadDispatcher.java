@@ -282,7 +282,7 @@ public class DownloadDispatcher extends Thread {
             if (mRequest.isCancelled()) {
                 Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id "+mRequest.getDownloadId());
                 mRequest.finish();
-                updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED,"Download cancelled");
+                updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
                 return;
             }
             int bytesRead = readFromResponse( data, in);
@@ -322,6 +322,8 @@ public class DownloadDispatcher extends Thread {
                 out.write(data, 0, bytesRead);
                 return;
             } catch (IOException ex) {
+                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
+            } catch (Exception e) {
                 updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
             }
         }
@@ -397,7 +399,9 @@ public class DownloadDispatcher extends Thread {
     public void updateDownloadFailed(int errorCode, String errorMsg) {
         shouldAllowRedirects = false;
         mRequest.setDownloadState(DownloadManager.STATUS_FAILED);
-        if(mRequest.getDeleteOnFailure()) cleanupDestination();
+        if(mRequest.getDeleteDestinationFileOnFailure()) {
+            cleanupDestination();
+        }
         mDelivery.postDownloadFailed(mRequest, errorCode, errorMsg);
         mRequest.finish();
     }

@@ -48,7 +48,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     private boolean mCancelled = false;
 
-    private boolean mDeleteOnFailure = true;
+    private boolean mDeleteDestinationFileOnFailure = true;
 
     private DownloadRequestQueue mRequestQueue;
 
@@ -207,15 +207,17 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return this;
     }
 
-    public boolean getDeleteOnFailure() {
-        return mDeleteOnFailure;
+    public boolean getDeleteDestinationFileOnFailure() {
+        return mDeleteDestinationFileOnFailure;
     }
 
     /**
-     * Set if file should be deleted on download failure. Use is optional: default is to delete.
+     * Set if destination file should be deleted on download failure.
+     * Use is optional: default is to delete.
      */
-    public void setDeleteOnFailure(boolean deleteOnFailure) {
-        mDeleteOnFailure = deleteOnFailure;
+    public DownloadRequest setDeleteDestinationFileOnFailure(boolean deleteOnFailure) {
+        this.mDeleteDestinationFileOnFailure = deleteOnFailure;
+        return this;
     }
 
     /**
