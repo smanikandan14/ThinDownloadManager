@@ -210,7 +210,11 @@ public class DownloadDispatcher extends Thread {
             // Create destination file if it doesn't exists
             if (destinationFile.exists() == false) {
                 try {
-                    destinationFile.createNewFile();
+                    if (destinationFile.createNewFile() == false) {
+                        errorCreatingDestinationFile = true;
+                        updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
+                            "Error in creating destination file");
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     errorCreatingDestinationFile = true;
@@ -275,7 +279,7 @@ public class DownloadDispatcher extends Thread {
         mRequest.setDownloadState(DownloadManager.STATUS_RUNNING);
         Log.v(TAG, "Content Length: " + mContentLength + " for Download Id " + mRequest.getDownloadId());
         for (;;) {
-            if (mRequest.isCanceled()) {
+            if (mRequest.isCancelled()) {
                 Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id "+mRequest.getDownloadId());
                 mRequest.finish();
                 updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED,"Download cancelled");

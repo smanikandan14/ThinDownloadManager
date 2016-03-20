@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 .setStatusListener(myDownloadStatusListener);
 
         downloadUri = Uri.parse(FILE4);
-        destinationUri = Uri.parse(filesDir+"/test_video.mp4");
+        destinationUri = Uri.parse(filesDir+"/mani/test/aaa/test_video.mp4");
         // Define a custom retry policy
         retryPolicy = new DefaultRetryPolicy(5000, 3, 2f);
         final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)

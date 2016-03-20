@@ -46,7 +46,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     /**
      * Whether or not this request has been canceled.
      */
-    private boolean mCanceled = false;
+    private boolean mCancelled = false;
 
     private DownloadRequestQueue mRequestQueue;
 
@@ -209,7 +209,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      * Mark this request as canceled.  No callback will be delivered.
      */
     public void cancel() {
-        mCanceled = true;
+        mCancelled = true;
     }
 
     //Package-private methods.
@@ -217,8 +217,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     /**
      * Returns true if this request has been canceled.
      */
-    public boolean isCanceled() {
-        return mCanceled;
+    public boolean isCancelled() {
+        return mCancelled;
     }
 
     /**
