@@ -12,6 +12,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
   Most of the times we download using Android's DownloadManager to external files directory and upon successful completion move the downloaded file to the sandboxed application's cache/file directory to avoid writing a own download manager which is a bit tedious. This library is handy in such situations.
 
   * **No additional permissions required.** Any download initiated by your application using android DownloadManager would throw a progress notification on status bar letting user know that you are downloading a file. So you end up using *setVisibleInDownloadsUi(false)* & having this permission *android.permission.DOWNLOAD_WITHOUT_NOTIFICATION*. When users install your app, they would be shown this permission and it makes them scary not to install your app because you are downloading some files without user's notification. Why give a chance of user not installing your app for this permission. You definetly need this library in this case.
+    -Additional permissions may be required if downloading to external storage or using the WiFi-only DownloadRequest feature.
 
   * **Volley** - Google recommended Networking library for android doesn't have options to download a file.
 
@@ -52,8 +53,10 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * Download URI, Destination URI.
   * Set Priority for request as HIGH or MEDIUM or LOW.
   * Takes Callback listener DownloadStatusListener
-  * Use custom Http Headers for a download request
-  * You can set a Retry Policy
+  * You can use custom Http Headers.
+  * You can set a Retry Policy.
+  * You can set to keep the destination file on download failure.
+  * You can set to only download over WiFi: If WiFi is unavailable, WiFi-only downloads are queued. When Wifi connects, WiFi-only downloads are started. If WiFi is disabled, it is up to the consuming app or user to enable WiFi. Using this requires additional permissions: see permissions section below.
 
      ``` java
         Uri downloadUri = Uri.parse("http://tcrn.ch/Yu1Ooo1");
@@ -84,6 +87,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ####**ThinDownloadManager**
   * The number of threads used to perform parallel download is determined by the available processors on the device. Uses `Runtime.getRuntime().availableProcessors()` api.
+  * You can construct with a Handler to use for download status callbacks.
   
   	``` java
     private ThinDownloadManager downloadManager;
@@ -131,13 +135,14 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ##No Permissions Required
   * Unless if you specify download destination to be in external public SDCard location.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
+  * Using WiFi-only downloads requires: ACCESS_NETWORK_STATE, CHANGE_NETWORK_STATE, ACCESS_WIFI_STATE, and WAKE_LOCK.
 
 ##Setup
 Include below line your build.gradle:
 
 ```java
 dependencies {
-    compile 'com.mani:ThinDownloadManager:1.2.4'
+    compile 'com.mani:ThinDownloadManager:1.3.0'
 }
 ```
 Make sure you included jcenter() in your repositories section.
