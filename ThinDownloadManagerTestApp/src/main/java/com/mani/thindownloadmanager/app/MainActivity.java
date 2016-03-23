@@ -187,9 +187,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mProgress1Txt.setText("Download1 - WiFi only");
+        mProgress1Txt.setText("Download1 - WiFi-Only");
         mProgress2Txt.setText("Download2");
-        mProgress3Txt.setText("Download3 - WiFi only");
+        mProgress3Txt.setText("Download3");
         mProgress4Txt.setText("Download4");
         mProgress5Txt.setText("Download5");
     }
@@ -215,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
         return new DownloadRequest(Uri.parse(FILE3))
                 .setDestinationURI(Uri.parse(filesDir+"/test_song.mp3")).setPriority(DownloadRequest.Priority.HIGH)
                 .setDownloadContext("Download3")
-                .setWifiOnly(true, this.getApplicationContext())
                 .setStatusListener(myDownloadStatusListener);
     }
 
@@ -279,45 +278,47 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDownloadComplete(DownloadRequest request) {
             final int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
 
             System.out.println("######## onDownloadComplete ###### id: "+id);
             if (id == downloadId1) {
-                mProgress1Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress1Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId2) {
-                mProgress2Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress2Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress3Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress4Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
             } else if (id == downloadId5) {
-              mProgress5Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+              mProgress5Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
             }
         }
 
         @Override
         public void onDownloadFailed(DownloadRequest request, int errorCode, String errorMessage) {
             final int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
 
-            System.out.println("######## onDownloadFailed ###### id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+            System.out.println("######## onDownloadFailed ###### "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
             if (id == downloadId1) {
-                mProgress1Txt.setText("Download1 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress1Txt.setText("Download1 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress1.setProgress(0);
             } else if (id == downloadId2) {
-                mProgress2Txt.setText("Download2 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress2Txt.setText("Download2 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress2.setProgress(0);
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText("Download3 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress3Txt.setText("Download3 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress3.setProgress(0);
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText("Download4 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress4Txt.setText("Download4 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress4.setProgress(0);
             } else if (id == downloadId5) {
-              mProgress5Txt.setText("Download5 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+              mProgress5Txt.setText("Download5 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
               mProgress5.setProgress(0);
             }
         }
@@ -325,28 +326,29 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onProgress(DownloadRequest request, long totalBytes, long downloadedBytes, int progress) {
             int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
 
             System.out.println("######## onProgress ###### "+id+" : "+totalBytes+" : "+downloadedBytes+" : "+progress);
             if (id == downloadId1) {
-                mProgress1Txt.setText("Download1 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress1Txt.setText("Download1 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress1.setProgress(progress);
 
             } else if (id == downloadId2) {
-                mProgress2Txt.setText("Download2 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress2Txt.setText("Download2 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress2.setProgress(progress);
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText("Download3 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress3Txt.setText("Download3 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress3.setProgress(progress);
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText("Download4 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress4Txt.setText("Download4 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress4.setProgress(progress);
             } else if (id == downloadId5) {
-              mProgress5Txt.setText("Download5 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+              mProgress5Txt.setText("Download5 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
               mProgress5.setProgress(progress);
             } else if (id == downloadId6) {
-                mProgress5Txt.setText("Download6 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress5Txt.setText("Download6 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress5.setProgress(progress);
             }
         }

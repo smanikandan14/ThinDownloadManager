@@ -255,7 +255,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     /**
      * Set if file should only be downloaded on WiFi. Use is optional: default is don't care.
-     * @param wifiOnly
+     * @param wifiOnly Allows easily passing settings. Setting false is the same as not using this method
      * @param context Used to get network service.
      */
     public DownloadRequest setWifiOnly(boolean wifiOnly, Context context) throws InvalidParameterException {
