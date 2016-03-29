@@ -23,6 +23,7 @@ import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
 import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_PARTIAL;
 import static java.net.HttpURLConnection.HTTP_SEE_OTHER;
 import static java.net.HttpURLConnection.HTTP_UNAVAILABLE;
 
@@ -136,6 +137,7 @@ public class DownloadDispatcher extends Thread {
                 + responseCode);
             
             switch (responseCode) {
+                case HTTP_PARTIAL:
                 case HTTP_OK:
                     shouldAllowRedirects = false;
                     if (readResponseHeaders(conn) == 1) {
