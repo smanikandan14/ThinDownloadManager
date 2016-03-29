@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -50,6 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/test_video.mp4";
     private static final String FILE5 = "http://httpbin.org/headers";
     private static final String FILE6 = "https://dl.dropboxusercontent.com/u/25887355/ThinDownloadManager.tar.gz";
+
+    private RetryPolicy retryPolicy;
+    private File filesDir;
 
     MyDownloadDownloadStatusListenerV1
         myDownloadStatusListener = new MyDownloadDownloadStatusListenerV1();
@@ -103,92 +107,44 @@ public class MainActivity extends AppCompatActivity {
         mProgress5.setMax(100);
         mProgress5.setProgress(0);
 
+        retryPolicy = new DefaultRetryPolicy();
+        filesDir = getExternalFilesDir("");
+
         downloadManager = new ThinDownloadManager(DOWNLOAD_THREAD_POOL_SIZE);
-        RetryPolicy retryPolicy = new DefaultRetryPolicy();
-
-        File filesDir = getExternalFilesDir("");
-
-        Uri downloadUri = Uri.parse(FILE1);
-        Uri destinationUri = Uri.parse(filesDir+"/test_photo1.JPG");
-        final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
-                .setRetryPolicy(retryPolicy)
-                .setDownloadContext("Download1")
-                .setStatusListener(myDownloadStatusListener);
-
-        downloadUri = Uri.parse(FILE2);
-        destinationUri = Uri.parse(filesDir+"/test_photo2.jpg");
-        final DownloadRequest downloadRequest2 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
-                .setDownloadContext("Download2")
-                .setStatusListener(myDownloadStatusListener);
-
-        downloadUri = Uri.parse(FILE3);
-        destinationUri = Uri.parse(filesDir+"/test_song.mp3");
-        final DownloadRequest downloadRequest3 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadContext("Download3")
-                .setStatusListener(myDownloadStatusListener);
-
-        downloadUri = Uri.parse(FILE4);
-        destinationUri = Uri.parse(filesDir+"/mani/test/aaa/test_video.mp4");
-        // Define a custom retry policy
-        retryPolicy = new DefaultRetryPolicy(5000, 3, 2f);
-        final DownloadRequest downloadRequest4 = new DownloadRequest(downloadUri)
-                .setRetryPolicy(retryPolicy)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadContext("Download4")
-                .setStatusListener(myDownloadStatusListener);
-
-        downloadUri = Uri.parse(FILE5);
-        destinationUri = Uri.parse(filesDir+"/headers.json");
-        final DownloadRequest downloadRequest5 = new DownloadRequest(downloadUri)
-                .addCustomHeader("Auth-Token", "myTokenKey")
-                .addCustomHeader("User-Agent", "Thin/Android")
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadContext("Download5")
-                .setStatusListener(myDownloadStatusListener);
-
-        downloadUri = Uri.parse(FILE6);
-        destinationUri = Uri.parse(filesDir+"/wtfappengine.zip");
-        final DownloadRequest downloadRequest6 = new DownloadRequest(downloadUri)
-                .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.HIGH)
-                .setDownloadContext("Download6")
-                .setStatusListener(myDownloadStatusListener);
 
         mDownload1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (downloadManager.query(downloadId1) == DownloadManager.STATUS_NOT_FOUND) {
-                    downloadId1 = downloadManager.add(downloadRequest1);
-                }
+                //if (downloadManager.query(downloadId1) == DownloadManager.STATUS_NOT_FOUND) {
+                    downloadId1 = downloadManager.add(getRequest1());
+                //}
             }
         });
 
         mDownload2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (downloadManager.query(downloadId2) == DownloadManager.STATUS_NOT_FOUND) {
-                    downloadId2 = downloadManager.add(downloadRequest2);
-                }
+                //if (downloadManager.query(downloadId2) == DownloadManager.STATUS_NOT_FOUND) {
+                    downloadId2 = downloadManager.add(getRequest2());
+                //}
             }
         });
 
         mDownload3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (downloadManager.query(downloadId3) == DownloadManager.STATUS_NOT_FOUND) {
-                    downloadId3 = downloadManager.add(downloadRequest3);
-                }
+                //if (downloadManager.query(downloadId3) == DownloadManager.STATUS_NOT_FOUND) {
+                    downloadId3 = downloadManager.add(getRequest3());
+                //}
             }
         });
 
         mDownload4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (downloadManager.query(downloadId4) == DownloadManager.STATUS_NOT_FOUND) {
-                    downloadId4 = downloadManager.add(downloadRequest4);
-                }
+                //if (downloadManager.query(downloadId4) == DownloadManager.STATUS_NOT_FOUND) {
+                    downloadId4 = downloadManager.add(getRequest4());
+                //}
             }
         });
 
@@ -199,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
                 //    downloadId5 = downloadManager.add(downloadRequest5);
                 //}
 
-              if (downloadManager.query(downloadId6) == DownloadManager.STATUS_NOT_FOUND) {
-                  downloadId6 = downloadManager.add(downloadRequest6);
-              }
+              //if (downloadManager.query(downloadId6) == DownloadManager.STATUS_NOT_FOUND) {
+                  downloadId6 = downloadManager.add(getRequest6());
+              //}
 
           }
         });
@@ -210,11 +166,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 downloadManager.cancelAll();
-                downloadId1 = downloadManager.add(downloadRequest1);
-                downloadId2 = downloadManager.add(downloadRequest2);
-                downloadId3 = downloadManager.add(downloadRequest3);
-                downloadId4 = downloadManager.add(downloadRequest4);
-                downloadId5 = downloadManager.add(downloadRequest5);
+                downloadId1 = downloadManager.add(getRequest1());
+                downloadId2 = downloadManager.add(getRequest2());
+                downloadId3 = downloadManager.add(getRequest3());
+                downloadId4 = downloadManager.add(getRequest4());
+                downloadId5 = downloadManager.add(getRequest5());
             }
         });
 
@@ -231,11 +187,59 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mProgress1Txt.setText("Download1");
+        mProgress1Txt.setText("Download1 - WiFi-Only");
         mProgress2Txt.setText("Download2");
         mProgress3Txt.setText("Download3");
         mProgress4Txt.setText("Download4");
         mProgress5Txt.setText("Download5");
+    }
+
+    private DownloadRequest getRequest1() {
+        return new DownloadRequest(Uri.parse(FILE1))
+                .setDestinationURI(Uri.parse(filesDir+"/test_photo1.JPG")).setPriority(DownloadRequest.Priority.LOW)
+                .setRetryPolicy(retryPolicy)
+                .setDownloadContext("Download1")
+                .setWifiOnly(true, MainActivity.this.getApplicationContext())
+                .setStatusListener(myDownloadStatusListener);
+    }
+
+    private DownloadRequest getRequest2() {
+        return new DownloadRequest(Uri.parse(FILE2))
+                .setDestinationURI(Uri.parse(filesDir+"/test_photo2.jpg")).setPriority(DownloadRequest.Priority.LOW)
+                .setDownloadContext("Download2")
+                .setWifiOnly(false, this.getApplicationContext())
+                .setStatusListener(myDownloadStatusListener);
+    }
+
+    private DownloadRequest getRequest3() {
+        return new DownloadRequest(Uri.parse(FILE3))
+                .setDestinationURI(Uri.parse(filesDir+"/test_song.mp3")).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext("Download3")
+                .setStatusListener(myDownloadStatusListener);
+    }
+
+    private DownloadRequest getRequest4() {
+        return new DownloadRequest(Uri.parse(FILE4))
+                .setRetryPolicy(new DefaultRetryPolicy(5000, 3, 2f))
+                .setDestinationURI(Uri.parse(filesDir+"/test_video.mp4")).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext("Download4")
+                .setStatusListener(myDownloadStatusListener);
+    }
+
+    private DownloadRequest getRequest5() {
+        return new DownloadRequest(Uri.parse(FILE5))
+                .addCustomHeader("Auth-Token", "myTokenKey")
+                .addCustomHeader("User-Agent", "Thin/Android")
+                .setDestinationURI(Uri.parse(filesDir+"/headers.json")).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext("Download5")
+                .setStatusListener(myDownloadStatusListener);
+    }
+
+    private DownloadRequest getRequest6() {
+        return new DownloadRequest(Uri.parse(FILE6))
+                .setDestinationURI(Uri.parse(filesDir+"/wtfappengine.zip")).setPriority(DownloadRequest.Priority.HIGH)
+                .setDownloadContext("Download6")
+                .setStatusListener(myDownloadStatusListener);
     }
 
     @Override
@@ -274,41 +278,47 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onDownloadComplete(DownloadRequest request) {
             final int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
+
+            System.out.println("######## onDownloadComplete ###### id: "+id);
             if (id == downloadId1) {
-                mProgress1Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress1Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId2) {
-                mProgress2Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress2Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress3Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+                mProgress4Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
             } else if (id == downloadId5) {
-              mProgress5Txt.setText(request.getDownloadContext() + " id: "+id+" Completed");
+              mProgress5Txt.setText(request.getDownloadContext() + " "+wifiOnlyString+" id: "+id+" Completed");
             }
         }
 
         @Override
         public void onDownloadFailed(DownloadRequest request, int errorCode, String errorMessage) {
             final int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
+
+            System.out.println("######## onDownloadFailed ###### "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
             if (id == downloadId1) {
-                mProgress1Txt.setText("Download1 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress1Txt.setText("Download1 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress1.setProgress(0);
             } else if (id == downloadId2) {
-                mProgress2Txt.setText("Download2 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress2Txt.setText("Download2 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress2.setProgress(0);
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText("Download3 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress3Txt.setText("Download3 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress3.setProgress(0);
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText("Download4 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+                mProgress4Txt.setText("Download4 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
                 mProgress4.setProgress(0);
             } else if (id == downloadId5) {
-              mProgress5Txt.setText("Download5 id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
+              mProgress5Txt.setText("Download5 "+wifiOnlyString+" id: "+id+" Failed: ErrorCode "+errorCode+", "+errorMessage);
               mProgress5.setProgress(0);
             }
         }
@@ -316,28 +326,29 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onProgress(DownloadRequest request, long totalBytes, long downloadedBytes, int progress) {
             int id = request.getDownloadId();
+            String wifiOnlyString = request.isWifiOnly() ? "WiFi-Only" : "";
 
             System.out.println("######## onProgress ###### "+id+" : "+totalBytes+" : "+downloadedBytes+" : "+progress);
             if (id == downloadId1) {
-                mProgress1Txt.setText("Download1 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress1Txt.setText("Download1 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress1.setProgress(progress);
 
             } else if (id == downloadId2) {
-                mProgress2Txt.setText("Download2 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress2Txt.setText("Download2 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress2.setProgress(progress);
 
             } else if (id == downloadId3) {
-                mProgress3Txt.setText("Download3 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress3Txt.setText("Download3 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress3.setProgress(progress);
 
             } else if (id == downloadId4) {
-                mProgress4Txt.setText("Download4 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress4Txt.setText("Download4 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress4.setProgress(progress);
             } else if (id == downloadId5) {
-              mProgress5Txt.setText("Download5 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+              mProgress5Txt.setText("Download5 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
               mProgress5.setProgress(progress);
             } else if (id == downloadId6) {
-                mProgress5Txt.setText("Download6 id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
+                mProgress5Txt.setText("Download6 "+wifiOnlyString+" id: "+id+", "+progress+"%"+"  "+getBytesDownloaded(progress,totalBytes));
                 mProgress5.setProgress(progress);
             }
         }

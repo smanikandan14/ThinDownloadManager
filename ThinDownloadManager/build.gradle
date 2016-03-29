@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "1.2.4"
+version = "1.3.0"
 group = "com.mani"
 
 def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
@@ -49,6 +49,18 @@ bintray {
     }
 }
 
+task deleteJar(type: Delete) {
+    delete 'libs/thindldman.jar'
+}
+
+task createJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('libs/')
+    include('classes.jar')
+    rename('classes.jar', 'thindldman.jar')
+}
+
+createJar.dependsOn(deleteJar, assembleDebug)
 
 install {
     repositories.mavenInstaller {
