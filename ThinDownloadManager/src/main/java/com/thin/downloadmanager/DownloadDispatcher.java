@@ -299,8 +299,9 @@ public class DownloadDispatcher extends Thread {
                 return;
             }
 
-            writeDataToDestination(data, bytesRead, out);
-            mCurrentBytes += bytesRead;
+            if (writeDataToDestination(data, bytesRead, out)) {
+                mCurrentBytes += bytesRead;
+            }
         }
     }
 
@@ -316,17 +317,19 @@ public class DownloadDispatcher extends Thread {
         }
     }
 
-    private void writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
-        while (true) {
-            try {
-                out.write(data, 0, bytesRead);
-                return;
-            } catch (IOException ex) {
-                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
-            } catch (Exception e) {
-                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
-            }
+    private boolean writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
+        boolean successInWritingToDestination = true;
+        try {
+            out.write(data, 0, bytesRead);
+        } catch (IOException ex) {
+            updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
+            successInWritingToDestination = false;
+        } catch (Exception e) {
+            updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Exception when writing download contents to the destination file");
+            successInWritingToDestination = false;
         }
+
+        return successInWritingToDestination;
     }
 
     private int readResponseHeaders( HttpURLConnection conn){
