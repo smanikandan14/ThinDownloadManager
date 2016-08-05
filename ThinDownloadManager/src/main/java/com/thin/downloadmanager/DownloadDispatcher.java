@@ -2,6 +2,9 @@ package com.thin.downloadmanager;
 
 import android.os.Process;
 import android.util.Log;
+
+import org.apache.http.conn.ConnectTimeoutException;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
@@ -17,7 +20,6 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
-import org.apache.http.conn.ConnectTimeoutException;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
@@ -303,6 +305,10 @@ public class DownloadDispatcher extends Thread {
 
             if (writeDataToDestination(data, bytesRead, out)) {
                 mCurrentBytes += bytesRead;
+            }else {
+                mRequest.finish();
+                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Failed writing file");
+                return;
             }
         }
     }
