@@ -94,5 +94,6 @@ public interface DownloadManager {
 
 	void release();
 
+	boolean isReleased();
 
 }
