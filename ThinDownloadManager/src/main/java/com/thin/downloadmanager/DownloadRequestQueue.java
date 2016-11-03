@@ -253,7 +253,7 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Perform construction with custom thread pool size.
-         */
+        */
 	private void initialize(Handler callbackHandler, int threadPoolSize) {
 		mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
 		mDelivery = new CallBackDelivery(callbackHandler);
