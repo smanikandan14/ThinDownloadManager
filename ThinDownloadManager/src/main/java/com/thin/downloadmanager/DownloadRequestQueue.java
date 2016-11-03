@@ -102,7 +102,7 @@ public class DownloadRequestQueue {
 	 * Deprecated:
 	 */
 	public DownloadRequestQueue(int threadPoolSize) {
-		initialize(new Handler(Looper.getMainLooper()));
+		initialize(new Handler(Looper.getMainLooper()), threadPoolSize);
 	}
 
 	/**
@@ -248,6 +248,14 @@ public class DownloadRequestQueue {
 	private void initialize(Handler callbackHandler) {
 		int processors = Runtime.getRuntime().availableProcessors();
 		mDownloadDispatchers = new DownloadDispatcher[processors];
+		mDelivery = new CallBackDelivery(callbackHandler);
+	}
+
+	/**
+	 * Perform construction with custom thread pool size.
+        */
+	private void initialize(Handler callbackHandler, int threadPoolSize) {
+		mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
 		mDelivery = new CallBackDelivery(callbackHandler);
 	}
 
