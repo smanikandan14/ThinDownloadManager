@@ -2,19 +2,19 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 
-version = "1.2.5"
+version = "1.2.6"
 group = "com.mani"
 
 def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 def gitUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "21.0.2"
+    compileSdkVersion 25
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 1
         versionName "1"
     }
