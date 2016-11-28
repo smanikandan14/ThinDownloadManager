@@ -79,6 +79,7 @@ public class DownloadDispatcher extends Thread {
     		try {
                 mRequest = mQueue.take();
                 mRedirectionCount = 0;
+		shouldAllowRedirects = true;
                 Log.v(TAG, "Download initiated for " + mRequest.getDownloadId());
                 updateDownloadState(DownloadManager.STATUS_STARTED);
                 executeDownload(mRequest.getUri().toString());
