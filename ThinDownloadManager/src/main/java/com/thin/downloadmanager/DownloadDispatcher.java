@@ -149,13 +149,14 @@ class DownloadDispatcher extends Thread {
                 case HTTP_TEMP_REDIRECT:
                     // Take redirect url and call executeDownload recursively until
                     // MAX_REDIRECT is reached.
-                    while (mRedirectionCount++ < MAX_REDIRECTS && shouldAllowRedirects) {
+                    while (mRedirectionCount < MAX_REDIRECTS && shouldAllowRedirects) {
+                        mRedirectionCount ++;
                         Log.v(TAG, "Redirect for downloaded Id " + request.getDownloadId());
                         final String location = conn.getHeaderField("Location");
                         executeDownload(request, location);
                     }
 
-                    if (mRedirectionCount > MAX_REDIRECTS) {
+                    if (mRedirectionCount > MAX_REDIRECTS && shouldAllowRedirects) {
                         updateDownloadFailed(request, DownloadManager.ERROR_TOO_MANY_REDIRECTS, "Too many redirects, giving up");
                         return;
                     }
