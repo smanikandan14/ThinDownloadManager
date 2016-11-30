@@ -69,13 +69,13 @@ class DownloadDispatcher extends Thread {
         mQueue = queue;
         mDelivery = delivery;
     }
-    
+
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         mTimer = new Timer();
         while (true) {
-            DownloadRequest request;
+            DownloadRequest request = null;
             try {
                 request = mQueue.take();
                 mRedirectionCount = 0;
@@ -86,6 +86,14 @@ class DownloadDispatcher extends Thread {
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
+                    if (request != null) {
+                        request.finish();
+                        // don't remove files that have been downloaded sucessfully.
+                        if (request.getDownloadState() != DownloadManager.STATUS_SUCCESSFUL) {
+                            updateDownloadFailed(request, DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
+                        }
+                    }
+                    mTimer.cancel();
                     return;
                 }
     		}
@@ -127,7 +135,7 @@ class DownloadDispatcher extends Thread {
             updateDownloadState(request, DownloadManager.STATUS_CONNECTING);
 
             final int responseCode = conn.getResponseCode();
-            
+
             Log.v(TAG, "Response code obtained for downloaded Id "
                     + request.getDownloadId()
                     + " : httpResponse Code "
