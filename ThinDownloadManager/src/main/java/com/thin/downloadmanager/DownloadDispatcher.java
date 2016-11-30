@@ -37,8 +37,7 @@ class DownloadDispatcher extends Thread {
     /** Used to tell the dispatcher to die. */
     private volatile boolean mQuit = false;
 
-    /** Current Download request that this dispatcher is working */
-    private DownloadRequest mRequest;
+
 
     /** To Delivery call back response on main thread */
     private DownloadRequestQueue.CallBackDelivery mDelivery;
@@ -70,30 +69,31 @@ class DownloadDispatcher extends Thread {
         mQueue = queue;
         mDelivery = delivery;
     }
-    
+
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
         mTimer = new Timer();
-    	while(true) {
-    		try {
-                mRequest = mQueue.take();
+        while (true) {
+            DownloadRequest request = null;
+            try {
+                request = mQueue.take();
                 mRedirectionCount = 0;
-		 shouldAllowRedirects = true;
-                Log.v(TAG, "Download initiated for " + mRequest.getDownloadId());
-                updateDownloadState(DownloadManager.STATUS_STARTED);
-                executeDownload(mRequest.getUri().toString());
+		 		shouldAllowRedirects = true;
+                Log.v(TAG, "Download initiated for " + request.getDownloadId());
+                updateDownloadState(request, DownloadManager.STATUS_STARTED);
+                executeDownload(request, request.getUri().toString());
     		} catch (InterruptedException e) {
                 // We may have been interrupted because it was time to quit.
                 if (mQuit) {
-                    if(mRequest != null) {
-                        mRequest.finish();
+                    if (request != null) {
+                        request.finish();
                         // don't remove files that have been downloaded sucessfully.
-                        if(mRequest.getDownloadState() != DownloadManager.STATUS_SUCCESSFUL) {
-                            updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
+                        if (request.getDownloadState() != DownloadManager.STATUS_SUCCESSFUL) {
+                            updateDownloadFailed(request, DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
                         }
-                        mTimer.cancel();
                     }
+                    mTimer.cancel();
                     return;
                 }
     		}
@@ -106,12 +106,12 @@ class DownloadDispatcher extends Thread {
     }
 
 
-    private void executeDownload(String downloadUrl) {
+    private void executeDownload(DownloadRequest request, String downloadUrl) {
         URL url;
         try {
             url = new URL(downloadUrl);
         } catch (MalformedURLException e) {
-            updateDownloadFailed(DownloadManager.ERROR_MALFORMED_URI,"MalformedURLException: URI passed is malformed.");
+            updateDownloadFailed(request, DownloadManager.ERROR_MALFORMED_URI, "MalformedURLException: URI passed is malformed.");
             return;
         }
 
@@ -120,10 +120,10 @@ class DownloadDispatcher extends Thread {
         try {
             conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(false);
-            conn.setConnectTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
-            conn.setReadTimeout(mRequest.getRetryPolicy().getCurrentTimeout());
+            conn.setConnectTimeout(request.getRetryPolicy().getCurrentTimeout());
+            conn.setReadTimeout(request.getRetryPolicy().getCurrentTimeout());
 
-            HashMap<String, String> customHeaders = mRequest.getCustomHeaders();
+            HashMap<String, String> customHeaders = request.getCustomHeaders();
             if (customHeaders != null) {
             	for (String headerName : customHeaders.keySet()) {
             		conn.addRequestProperty(headerName, customHeaders.get(headerName));
@@ -132,23 +132,23 @@ class DownloadDispatcher extends Thread {
 
             // Status Connecting is set here before
             // urlConnection is trying to connect to destination.
-         	updateDownloadState(DownloadManager.STATUS_CONNECTING);
-         	
+            updateDownloadState(request, DownloadManager.STATUS_CONNECTING);
+
             final int responseCode = conn.getResponseCode();
-            
+
             Log.v(TAG, "Response code obtained for downloaded Id "
-                + mRequest.getDownloadId()
-                + " : httpResponse Code "
-                + responseCode);
-            
+                    + request.getDownloadId()
+                    + " : httpResponse Code "
+                    + responseCode);
+
             switch (responseCode) {
                 case HTTP_PARTIAL:
                 case HTTP_OK:
                     shouldAllowRedirects = false;
-                    if (readResponseHeaders(conn) == 1) {
-                        transferData(conn);
+                    if (readResponseHeaders(request, conn) == 1) {
+                        transferData(request, conn);
                     } else {
-                        updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_SIZE_UNKNOWN, "Transfer-Encoding not found as well as can't know size of download, giving up");
+                        updateDownloadFailed(request, DownloadManager.ERROR_DOWNLOAD_SIZE_UNKNOWN, "Transfer-Encoding not found as well as can't know size of download, giving up");
                     }
                     return;
                 case HTTP_MOVED_PERM:
@@ -157,52 +157,53 @@ class DownloadDispatcher extends Thread {
                 case HTTP_TEMP_REDIRECT:
                     // Take redirect url and call executeDownload recursively until
                     // MAX_REDIRECT is reached.
-                    while (mRedirectionCount++ < MAX_REDIRECTS && shouldAllowRedirects) {
-                        Log.v(TAG, "Redirect for downloaded Id "+mRequest.getDownloadId());
+                    while (mRedirectionCount < MAX_REDIRECTS && shouldAllowRedirects) {
+                        mRedirectionCount ++;
+                        Log.v(TAG, "Redirect for downloaded Id " + request.getDownloadId());
                         final String location = conn.getHeaderField("Location");
-                        executeDownload(location);
+                        executeDownload(request, location);
                     }
 
-                    if (mRedirectionCount > MAX_REDIRECTS) {
-                        updateDownloadFailed(DownloadManager.ERROR_TOO_MANY_REDIRECTS, "Too many redirects, giving up");
+                    if (mRedirectionCount > MAX_REDIRECTS && shouldAllowRedirects) {
+                        updateDownloadFailed(request, DownloadManager.ERROR_TOO_MANY_REDIRECTS, "Too many redirects, giving up");
                         return;
                     }
                     break;
                 case HTTP_REQUESTED_RANGE_NOT_SATISFIABLE:
-                    updateDownloadFailed(HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, conn.getResponseMessage());
+                    updateDownloadFailed(request, HTTP_REQUESTED_RANGE_NOT_SATISFIABLE, conn.getResponseMessage());
                     break;
                 case HTTP_UNAVAILABLE:
-                    updateDownloadFailed(HTTP_UNAVAILABLE, conn.getResponseMessage());
+                    updateDownloadFailed(request, HTTP_UNAVAILABLE, conn.getResponseMessage());
                     break;
                 case HTTP_INTERNAL_ERROR:
-                    updateDownloadFailed(HTTP_INTERNAL_ERROR, conn.getResponseMessage());
+                    updateDownloadFailed(request, HTTP_INTERNAL_ERROR, conn.getResponseMessage());
                     break;
                 default:
-                    updateDownloadFailed(DownloadManager.ERROR_UNHANDLED_HTTP_CODE, "Unhandled HTTP response:" + responseCode +" message:" +conn.getResponseMessage());
+                    updateDownloadFailed(request, DownloadManager.ERROR_UNHANDLED_HTTP_CODE, "Unhandled HTTP response:" + responseCode + " message:" + conn.getResponseMessage());
                     break;
             }
         } catch(SocketTimeoutException e) {
             e.printStackTrace();
             // Retry.
-            attemptRetryOnTimeOutException();
+            attemptRetryOnTimeOutException(request);
         } catch (ConnectTimeoutException e) {
             e.printStackTrace();
-            attemptRetryOnTimeOutException();
-        } catch(IOException e) {
+            attemptRetryOnTimeOutException(request);
+        } catch (IOException e) {
             e.printStackTrace();
-            updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
+            updateDownloadFailed(request, DownloadManager.ERROR_HTTP_DATA_ERROR, "Trouble with low-level sockets");
         } finally {
             if (conn != null) {
                 conn.disconnect();
             }
         }
-	}
-	
-    private void transferData(HttpURLConnection conn) {
+    }
+
+    private void transferData(DownloadRequest request, HttpURLConnection conn) {
         InputStream in = null;
         OutputStream out = null;
         FileDescriptor outFd = null;
-        cleanupDestination();
+        cleanupDestination(request);
         try {
             try {
                 in = conn.getInputStream();
@@ -210,7 +211,7 @@ class DownloadDispatcher extends Thread {
                 e.printStackTrace();
             }
 
-    		File destinationFile = new File(mRequest.getDestinationURI().getPath().toString());
+    		File destinationFile = new File(request.getDestinationURI().getPath());
 
             boolean errorCreatingDestinationFile = false;
             // Create destination file if it doesn't exists
@@ -218,14 +219,14 @@ class DownloadDispatcher extends Thread {
                 try {
                     if (!destinationFile.createNewFile()) {
                         errorCreatingDestinationFile = true;
-                        updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
-                            "Error in creating destination file");
+                        updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR,
+                                "Error in creating destination file");
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                     errorCreatingDestinationFile = true;
-                    updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
-                        "Error in creating destination file");
+                    updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR,
+                            "Error in creating destination file");
                 }
             }
 
@@ -239,15 +240,15 @@ class DownloadDispatcher extends Thread {
                 }
 
                 if (in == null) {
-                    updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
-                        "Error in creating input stream");
+                    updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR,
+                            "Error in creating input stream");
                 } else if (out == null) {
 
-                    updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR,
-                        "Error in writing download contents to the destination file");
+                    updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR,
+                            "Error in writing download contents to the destination file");
                 } else {
                     // Start streaming data
-                    transferData(in, out);
+                    transferData(request, in, out);
                 }
             }
 
@@ -278,78 +279,78 @@ class DownloadDispatcher extends Thread {
             }
         }
     }
-    
-    private void transferData(InputStream in, OutputStream out) {
+
+    private void transferData(DownloadRequest request, InputStream in, OutputStream out) {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
-        mRequest.setDownloadState(DownloadManager.STATUS_RUNNING);
-        Log.v(TAG, "Content Length: " + mContentLength + " for Download Id " + mRequest.getDownloadId());
-        for (;;) {
-            if (mRequest.isCancelled()) {
-                Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id "+mRequest.getDownloadId());
-                mRequest.finish();
-                updateDownloadFailed(DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
+        request.setDownloadState(DownloadManager.STATUS_RUNNING);
+        Log.v(TAG, "Content Length: " + mContentLength + " for Download Id " + request.getDownloadId());
+        for (; ; ) {
+            if (request.isCancelled()) {
+                Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id " + request.getDownloadId());
+                request.finish();
+                updateDownloadFailed(request, DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
                 return;
             }
-            int bytesRead = readFromResponse( data, in);
+            int bytesRead = readFromResponse(request, data, in);
 
             if (mContentLength != -1 && mContentLength > 0) {
                 int progress = (int) ((mCurrentBytes * 100) / mContentLength);
-                updateDownloadProgress(progress, mCurrentBytes);
+                updateDownloadProgress(request, progress, mCurrentBytes);
             }
 
             if (bytesRead == -1) { // success, end of stream already reached
-                updateDownloadComplete();
+                updateDownloadComplete(request);
                 return;
             } else if (bytesRead == Integer.MIN_VALUE) {
                 return;
             }
 
-            if (writeDataToDestination(data, bytesRead, out)) {
+            if (writeDataToDestination(request, data, bytesRead, out)) {
                 mCurrentBytes += bytesRead;
-            }else {
-                mRequest.finish();
-                updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Failed writing file");
+            } else {
+                request.finish();
+                updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR, "Failed writing file");
                 return;
             }
         }
     }
 
-    private int readFromResponse( byte[] data, InputStream entityStream) {
+    private int readFromResponse(DownloadRequest request, byte[] data, InputStream entityStream) {
         try {
             return entityStream.read(data);
         } catch (IOException ex) {
             if ("unexpected end of stream".equals(ex.getMessage())) {
                 return -1;
             }
-            updateDownloadFailed(DownloadManager.ERROR_HTTP_DATA_ERROR, "IOException: Failed reading response");
+            updateDownloadFailed(request, DownloadManager.ERROR_HTTP_DATA_ERROR, "IOException: Failed reading response");
             return Integer.MIN_VALUE;
         }
     }
 
-    private boolean writeDataToDestination(byte[] data, int bytesRead, OutputStream out) {
+    private boolean writeDataToDestination(DownloadRequest request, byte[] data, int bytesRead, OutputStream out) {
         boolean successInWritingToDestination = true;
         try {
             out.write(data, 0, bytesRead);
         } catch (IOException ex) {
-            updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
+            updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR, "IOException when writing download contents to the destination file");
             successInWritingToDestination = false;
         } catch (Exception e) {
-            updateDownloadFailed(DownloadManager.ERROR_FILE_ERROR, "Exception when writing download contents to the destination file");
+            updateDownloadFailed(request, DownloadManager.ERROR_FILE_ERROR, "Exception when writing download contents to the destination file");
             successInWritingToDestination = false;
         }
 
         return successInWritingToDestination;
     }
 
-    private int readResponseHeaders( HttpURLConnection conn){
+    private int readResponseHeaders(DownloadRequest request, HttpURLConnection conn) {
         final String transferEncoding = conn.getHeaderField("Transfer-Encoding");
         mContentLength = -1;
 
         if (transferEncoding == null) {
             mContentLength = getHeaderFieldLong(conn, "Content-Length", -1);
         } else {
-            Log.v(TAG, "Ignoring Content-Length since Transfer-Encoding is also defined for Downloaded Id " + mRequest.getDownloadId());
+            Log.v(TAG, "Ignoring Content-Length since Transfer-Encoding is also defined for Downloaded Id " + request.getDownloadId());
         }
 
         if (mContentLength != -1) {
@@ -369,20 +370,20 @@ class DownloadDispatcher extends Thread {
         }
     }
 
-    private void attemptRetryOnTimeOutException()  {
-        updateDownloadState(DownloadManager.STATUS_RETRYING);
-        final RetryPolicy retryPolicy = mRequest.getRetryPolicy();
+    private void attemptRetryOnTimeOutException(final DownloadRequest request) {
+        updateDownloadState(request, DownloadManager.STATUS_RETRYING);
+        final RetryPolicy retryPolicy = request.getRetryPolicy();
         try {
             retryPolicy.retry();
             mTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    executeDownload(mRequest.getUri().toString());
+                    executeDownload(request, request.getUri().toString());
                 }
             }, retryPolicy.getCurrentTimeout());
         } catch (RetryError e) {
             // Update download failed.
-            updateDownloadFailed(DownloadManager.ERROR_CONNECTION_TIMEOUT_AFTER_RETRIES,
+            updateDownloadFailed(request, DownloadManager.ERROR_CONNECTION_TIMEOUT_AFTER_RETRIES,
                     "Connection time out after maximum retires attempted");
         }
     }
@@ -391,35 +392,35 @@ class DownloadDispatcher extends Thread {
      * Called just before the thread finishes, regardless of status, to take any necessary action on
      * the downloaded file.
      */
-    private void cleanupDestination() {
-        Log.d(TAG, "cleanupDestination() deleting " + mRequest.getDestinationURI().getPath());
-        File destinationFile = new File(mRequest.getDestinationURI().getPath());
-        if(destinationFile.exists()) {
+    private void cleanupDestination(DownloadRequest request) {
+        Log.d(TAG, "cleanupDestination() deleting " + request.getDestinationURI().getPath());
+        File destinationFile = new File(request.getDestinationURI().getPath());
+        if (destinationFile.exists()) {
             destinationFile.delete();
         }
     }
 
-    private void updateDownloadState(int state) {
-        mRequest.setDownloadState(state);
+    private void updateDownloadState(DownloadRequest request, int state) {
+        request.setDownloadState(state);
     }
 
-    private void updateDownloadComplete() {
-        mDelivery.postDownloadComplete(mRequest);
-        mRequest.setDownloadState(DownloadManager.STATUS_SUCCESSFUL);
-        mRequest.finish();
+    private void updateDownloadComplete(DownloadRequest request) {
+        mDelivery.postDownloadComplete(request);
+        request.setDownloadState(DownloadManager.STATUS_SUCCESSFUL);
+        request.finish();
     }
 
-    private void updateDownloadFailed(int errorCode, String errorMsg) {
+    private void updateDownloadFailed(DownloadRequest request, int errorCode, String errorMsg) {
         shouldAllowRedirects = false;
-        mRequest.setDownloadState(DownloadManager.STATUS_FAILED);
-        if(mRequest.getDeleteDestinationFileOnFailure()) {
-            cleanupDestination();
+        request.setDownloadState(DownloadManager.STATUS_FAILED);
+        if (request.getDeleteDestinationFileOnFailure()) {
+            cleanupDestination(request);
         }
-        mDelivery.postDownloadFailed(mRequest, errorCode, errorMsg);
-        mRequest.finish();
+        mDelivery.postDownloadFailed(request, errorCode, errorMsg);
+        request.finish();
     }
 
-    private void updateDownloadProgress(int progress, long downloadedBytes) {
-        mDelivery.postProgressUpdate(mRequest,mContentLength, downloadedBytes, progress);
+    private void updateDownloadProgress(DownloadRequest request, int progress, long downloadedBytes) {
+        mDelivery.postProgressUpdate(request, mContentLength, downloadedBytes, progress);
     }
 }
