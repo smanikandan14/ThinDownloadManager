@@ -2,6 +2,8 @@ package com.thin.downloadmanager;
 
 import android.os.Handler;
 
+import com.thin.downloadmanager.util.Log;
+
 import java.security.InvalidParameterException;
 
 public class ThinDownloadManager implements DownloadManager {
@@ -15,8 +17,16 @@ public class ThinDownloadManager implements DownloadManager {
      * Default constructor
      */
     public ThinDownloadManager() {
+        this(true);
+    }
+
+    /**
+     * Construct with logging Enabled.
+     */
+    public ThinDownloadManager(boolean loggingEnabled) {
         mRequestQueue = new DownloadRequestQueue();
         mRequestQueue.start();
+        setLoggingEnabled(loggingEnabled);
     }
 
     /**
@@ -27,6 +37,7 @@ public class ThinDownloadManager implements DownloadManager {
     public ThinDownloadManager(Handler callbackHandler) throws InvalidParameterException {
         mRequestQueue = new DownloadRequestQueue(callbackHandler);
         mRequestQueue.start();
+        setLoggingEnabled(true);
     }
 
     /**
@@ -39,6 +50,7 @@ public class ThinDownloadManager implements DownloadManager {
     public ThinDownloadManager(int threadPoolSize) {
         mRequestQueue = new DownloadRequestQueue(threadPoolSize);
         mRequestQueue.start();
+        setLoggingEnabled(true);
     }
 
     /**
@@ -100,6 +112,9 @@ public class ThinDownloadManager implements DownloadManager {
         }
     }
 
+    private static void setLoggingEnabled(boolean enabled) {
+        Log.setEnabled(enabled);
+    }
 }
 
 

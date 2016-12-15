@@ -1,7 +1,7 @@
 package com.thin.downloadmanager;
 
 import android.os.Process;
-import android.util.Log;
+import com.thin.downloadmanager.util.Log;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
