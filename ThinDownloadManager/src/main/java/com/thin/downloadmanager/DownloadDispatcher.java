@@ -21,6 +21,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
+import static android.content.ContentValues.TAG;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
@@ -56,12 +57,9 @@ class DownloadDispatcher extends Thread {
 
     private long mContentLength;
     private long mCurrentBytes;
-    boolean shouldAllowRedirects = true;
+    private boolean shouldAllowRedirects = true;
 
-    Timer mTimer;
-
-    /** Tag used for debugging/logging */
-    static final String TAG = "ThinDownloadManager";
+    private Timer mTimer;
 
     /** Constructor take the dependency (DownloadRequest queue) that all the Dispatcher needs */
     DownloadDispatcher(BlockingQueue<DownloadRequest> queue,
@@ -80,7 +78,7 @@ class DownloadDispatcher extends Thread {
                 request = mQueue.take();
                 mRedirectionCount = 0;
 		 		shouldAllowRedirects = true;
-                Log.v(TAG, "Download initiated for " + request.getDownloadId());
+                Log.v("Download initiated for " + request.getDownloadId());
                 updateDownloadState(request, DownloadManager.STATUS_STARTED);
                 executeDownload(request, request.getUri().toString());
     		} catch (InterruptedException e) {
@@ -136,7 +134,7 @@ class DownloadDispatcher extends Thread {
 
             final int responseCode = conn.getResponseCode();
 
-            Log.v(TAG, "Response code obtained for downloaded Id "
+            Log.v("Response code obtained for downloaded Id "
                     + request.getDownloadId()
                     + " : httpResponse Code "
                     + responseCode);
@@ -284,10 +282,10 @@ class DownloadDispatcher extends Thread {
         final byte data[] = new byte[BUFFER_SIZE];
         mCurrentBytes = 0;
         request.setDownloadState(DownloadManager.STATUS_RUNNING);
-        Log.v(TAG, "Content Length: " + mContentLength + " for Download Id " + request.getDownloadId());
+        Log.v("Content Length: " + mContentLength + " for Download Id " + request.getDownloadId());
         for (; ; ) {
             if (request.isCancelled()) {
-                Log.v(TAG, "Stopping the download as Download Request is cancelled for Downloaded Id " + request.getDownloadId());
+                Log.v("Stopping the download as Download Request is cancelled for Downloaded Id " + request.getDownloadId());
                 request.finish();
                 updateDownloadFailed(request, DownloadManager.ERROR_DOWNLOAD_CANCELLED, "Download cancelled");
                 return;
@@ -350,7 +348,7 @@ class DownloadDispatcher extends Thread {
         if (transferEncoding == null) {
             mContentLength = getHeaderFieldLong(conn, "Content-Length", -1);
         } else {
-            Log.v(TAG, "Ignoring Content-Length since Transfer-Encoding is also defined for Downloaded Id " + request.getDownloadId());
+            Log.v("Ignoring Content-Length since Transfer-Encoding is also defined for Downloaded Id " + request.getDownloadId());
         }
 
         if (mContentLength != -1) {
@@ -393,7 +391,7 @@ class DownloadDispatcher extends Thread {
      * the downloaded file.
      */
     private void cleanupDestination(DownloadRequest request) {
-        Log.d(TAG, "cleanupDestination() deleting " + request.getDestinationURI().getPath());
+        Log.d("cleanupDestination() deleting " + request.getDestinationURI().getPath());
         File destinationFile = new File(request.getDestinationURI().getPath());
         if (destinationFile.exists()) {
             destinationFile.delete();
