@@ -44,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
     TextView mProgress4Txt;
     TextView mProgress5Txt;
 
-    private static final String FILE1 = "https://dl.dropboxusercontent.com/u/25887355/test_photo1.JPG";
+    private static final String FILE1 = "http://www.sample-videos.com/video/mp4/480/big_buck_bunny_480p_30mb.mp4";
+//    private static final String FILE1 = "https://dl.dropboxusercontent.com/u/25887355/test_photo1.JPG";
     private static final String FILE2 = "https://dl.dropboxusercontent.com/u/25887355/test_photo2.jpg";
     private static final String FILE3 = "https://dl.dropboxusercontent.com/u/25887355/test_song.mp3";
     private static final String FILE4 = "https://dl.dropboxusercontent.com/u/25887355/test_video.mp4";
@@ -109,10 +110,11 @@ public class MainActivity extends AppCompatActivity {
         File filesDir = getExternalFilesDir("");
 
         Uri downloadUri = Uri.parse(FILE1);
-        Uri destinationUri = Uri.parse(filesDir+"/test_photo1.JPG");
+        Uri destinationUri = Uri.parse(filesDir+"/big_buck_bunny_480p_30mb.mp4");
         final DownloadRequest downloadRequest1 = new DownloadRequest(downloadUri)
                 .setDestinationURI(destinationUri).setPriority(DownloadRequest.Priority.LOW)
                 .setRetryPolicy(retryPolicy)
+                .setStreamingDownload(true) // Streaming or Resumable download feature enabled.
                 .setDownloadContext("Download1")
                 .setStatusListener(myDownloadStatusListener);
 

@@ -4,6 +4,11 @@ import android.net.Uri;
 
 import java.util.HashMap;
 
+/**
+ * @author Mani Selvaraju
+ * @author Praveen Kumar
+ */
+
 public class DownloadRequest implements Comparable<DownloadRequest> {
 
     /**
@@ -55,6 +60,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     private DownloadStatusListenerV1 mDownloadStatusListenerV1;
 
     private Object mDownloadContext;
+
+    private boolean isStreamingEnabled = false;
 
     private HashMap<String, String> mCustomHeader;
     private Priority mPriority = Priority.NORMAL;
@@ -117,6 +124,11 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     public DownloadRequest setRetryPolicy(RetryPolicy mRetryPolicy) {
         this.mRetryPolicy = mRetryPolicy;
         return this;
+    }
+
+
+    public boolean isStreamingDownloadEnabled() {
+        return isStreamingEnabled;
     }
 
     /**
@@ -187,6 +199,11 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return this;
     }
 
+    public DownloadRequest setStreamingDownload(boolean isStreamingEnabled) {
+        this.isStreamingEnabled = isStreamingEnabled;
+        return this;
+    }
+
     public Uri getUri() {
         return mUri;
     }
@@ -210,6 +227,10 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     public void cancel() {
         mCanceled = true;
+    }
+
+    public void abortCancel() {
+        mCanceled = false;
     }
 
     //Package-private methods.

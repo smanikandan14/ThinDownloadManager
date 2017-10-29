@@ -9,12 +9,12 @@ def siteUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 def gitUrl = 'https://github.com/smanikandan14/ThinDownloadManager.git'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "21.0.2"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 23
+        minSdkVersion 14
+        targetSdkVersion 26
         versionCode 1
         versionName "1"
     }
@@ -25,6 +25,18 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
     }
 
     lintOptions {
