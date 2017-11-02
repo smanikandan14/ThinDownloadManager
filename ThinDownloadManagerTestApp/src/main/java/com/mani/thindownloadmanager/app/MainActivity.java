@@ -248,13 +248,13 @@ public class MainActivity extends AppCompatActivity {
     private void showInternalFilesDir() {
         File internalFile = new File(getExternalFilesDir("").getPath());
         File files[] = internalFile.listFiles();
-        String contentText = "";
+        StringBuilder contentText = new StringBuilder();
         if( files.length == 0 ) {
-            contentText = "No Files Found";
+            contentText = new StringBuilder("No Files Found");
         }
 
         for (File file : files) {
-            contentText += file.getName()+" "+file.length()+" \n\n ";
+            contentText.append(file.getName()).append(" ").append(file.length()).append(" \n\n ");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -262,7 +262,7 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = internalCacheDialog.getLayoutInflater();
         View dialogLayout = inflater.inflate(R.layout.layout_files, null);
         TextView content = (TextView) dialogLayout.findViewById(R.id.filesList);
-        content.setText(contentText);
+        content.setText(contentText.toString());
 
         builder.setView(dialogLayout);
         builder.show();

@@ -4,7 +4,15 @@ import android.net.Uri;
 
 import java.util.HashMap;
 
+/**
+ * This class used to handle user requests and provides priorities to the request even there may be 'n' number of request raised.
+ * Basically this is {@link Comparable} class and It compares the {@link DownloadRequest}'s {@link Priority} levels and react accordingly.
+ *
+ * @author Mani Selvaraj
+ * @author Praveen Kumar
+ */
 public class DownloadRequest implements Comparable<DownloadRequest> {
+
 
     /**
      * Priority values.  Requests will be processed from higher priorities to
@@ -60,6 +68,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private HashMap<String, String> mCustomHeader;
     private Priority mPriority = Priority.NORMAL;
+
+    private boolean isDownloadResumable = false;
 
     public DownloadRequest(Uri uri) {
         if (uri == null) {
@@ -212,6 +222,19 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     }
 
     /**
+     * It marks the request with resumable feature and It is an optional feature
+     * @param isDownloadResumable - It enables resumable feature for this request
+     * @return - current {@link DownloadRequest}
+     */
+    public DownloadRequest setDownloadResumable(boolean isDownloadResumable) {
+        this.isDownloadResumable = isDownloadResumable;
+        return this;
+    }
+
+    public boolean isResumable() {
+        return isDownloadResumable;
+    }
+    /**
      * Set if destination file should be deleted on download failure.
      * Use is optional: default is to delete.
      */
@@ -234,6 +257,15 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     public boolean isCancelled() {
         return mCancelled;
+    }
+
+
+
+    /**
+     * Marked the request as canceled is aborted.
+     */
+    public void abortCancel() {
+        mCancelled = false;
     }
 
     /**
