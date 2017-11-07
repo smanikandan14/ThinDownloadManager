@@ -203,6 +203,41 @@ public class DownloadRequestQueue {
 		return 0;
 	}
 
+	/**
+	 * Pause a particular download in progress.
+	 *
+	 * @param downloadId - selected download request Id
+	 * @return It will return 1 if the download Id is found else returns 0.
+	 */
+	int pause(int downloadId) {
+		checkResumableDownloadEnabled(downloadId);
+		return this.cancel(downloadId);
+	}
+
+	/**
+	 * Pause all the dispatchers in work and also cancel and stops the dispatchers.
+	 */
+	void pauseAll() {
+		checkResumableDownloadEnabled(-1); // Error code -1 handle for cancelAll()
+		this.cancelAll();
+	}
+
+
+	/**
+	 * This is called by methods that want to throw an exception if the {@link DownloadRequest}
+	 * hasn't enable isResumable feature.
+	 */
+	private void checkResumableDownloadEnabled(int downloadId) {
+		synchronized (mCurrentRequests) {
+			for (DownloadRequest request : mCurrentRequests) {
+					if (downloadId == -1 ||
+							(request.getDownloadId() == downloadId && !request.isResumable())) {
+						throw new IllegalStateException("You cannot pause the download, unless your request enabled Resume feature in DownloadRequest.");
+				}
+			}
+		}
+	}
+
 	void finish(DownloadRequest request) {
 		if (mCurrentRequests != null) {//if finish and release are called together it throws NPE
 			// Remove from the queue.

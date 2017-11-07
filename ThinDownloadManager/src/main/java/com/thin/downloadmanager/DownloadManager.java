@@ -90,6 +90,10 @@ public interface DownloadManager {
 
 	void cancelAll();
 
+	int pause(int downloadId);
+
+	void pauseAll();
+
 	int query(int downloadId);
 
 	void release();
