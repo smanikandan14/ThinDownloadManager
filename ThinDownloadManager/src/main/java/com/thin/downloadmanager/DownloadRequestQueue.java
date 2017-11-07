@@ -3,8 +3,11 @@ package com.thin.downloadmanager;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.thin.downloadmanager.util.Log;
+
 import java.security.InvalidParameterException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -230,9 +233,13 @@ public class DownloadRequestQueue {
 	private void checkResumableDownloadEnabled(int downloadId) {
 		synchronized (mCurrentRequests) {
 			for (DownloadRequest request : mCurrentRequests) {
-					if (downloadId == -1 ||
-							(request.getDownloadId() == downloadId && !request.isResumable())) {
-						throw new IllegalStateException("You cannot pause the download, unless your request enabled Resume feature in DownloadRequest.");
+				if (downloadId == -1 && !request.isResumable()) {
+					Log.e("ThinDownloadManager",
+							String.format(Locale.getDefault(), "This request has not enabled resume feature hence request will be cancelled. Request Id: %d", request.getDownloadId()));
+				} else if ((request.getDownloadId() == downloadId && !request.isResumable())) {
+					throw new IllegalStateException("You cannot pause the download, unless you have enabled Resume feature in DownloadRequest.");
+				} else {
+					//ignored, It can not be a scenario to happen.
 				}
 			}
 		}

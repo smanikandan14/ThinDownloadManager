@@ -228,6 +228,7 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
      */
     public DownloadRequest setDownloadResumable(boolean isDownloadResumable) {
         this.isDownloadResumable = isDownloadResumable;
+        setDeleteDestinationFileOnFailure(false); // If resumable feature enabled, downloaded file should not be deleted.
         return this;
     }
 
