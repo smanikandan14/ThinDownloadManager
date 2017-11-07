@@ -4,7 +4,7 @@ ThinDownloadManager
 Thin DownloadManager is an android library primary to download files and to avoid using *DOWNLOAD_WITHOUT_NOTIFICATION* permission when using Android provided DownloadManager in your application.
 
 
-##Why ?
+## Why ?
   There are few reasons why you might want to use this library.
 
   * There are situations where you wanted to download a file into application's sandboxed cache or files directory where no one else can access to. **DownloadManager** provided by android does not have facility to download directly to application's cache or files directory **(/data/data/<package>/cache/ or /data/data/<pacakge>/files/)**. It can only accept destination in external SDcard as download destination. And if you are not using application's external file directory as destination i.e *(setDestinationInExternalFilesDir())* you have to have *android.permission.WRITE_EXTERNAL_STORAGE*
@@ -16,8 +16,8 @@ Thin DownloadManager is an android library primary to download files and to avoi
   * **Volley** - Google recommended Networking library for android doesn't have options to download a file.
 
 
-##Usuage
-####**DownloadStatusListener (Deprecated)**
+## Usuage
+#### **DownloadStatusListener (Deprecated)**
   * Provides call back option to know when the download is completed, failed and reason for failure, and to know the progress of the download.
 ``` java
     //Callback when download is successfully completed
@@ -31,7 +31,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
     void onProgress (int id, long totalBytes, long downlaodedBytes, int progress);
 
 ```
-####**DownloadStatusListenerV1**
+#### **DownloadStatusListenerV1**
   * Provides call back option to know when the download is completed, failed and reason for failure, and to know the progress of the download. DownloadRequest is given back in the callback so that you can easily set some Object as context to download request and get the context object back from the request object.
 ``` java
     //Callback when download is successfully completed
@@ -47,12 +47,13 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
 ```
 
-####**DownloadRequest**
+#### **DownloadRequest**
   * Takes all the necessary information required for download.
   * Download URI, Destination URI.
   * Set Priority for request as HIGH or MEDIUM or LOW.
   * Takes Callback listener DownloadStatusListener
   * Use custom Http Headers for a download request
+  * Resumable a download if network connection drops or download is paused.
   * You can set a Retry Policy
 
      ``` java
@@ -82,7 +83,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
 
      ```
 
-####**ThinDownloadManager**
+#### **ThinDownloadManager**
   * The number of threads used to perform parallel download is determined by the available processors on the device. Uses `Runtime.getRuntime().availableProcessors()` api.
   
   	``` java
@@ -91,8 +92,8 @@ Thin DownloadManager is an android library primary to download files and to avoi
     
     downloadManager = new ThinDownloadManager();
     
-    ....
-```
+    .... 
+    ```
 
   * To start a download use *add( DownloadRequest request)*
    	```java
@@ -122,6 +123,10 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	```java
   	int status = downloadManager.query(downloadId);
   	```
+  * To pause a download in progress. The download request has to be marked as `setDownloadResumable` to true
+    ``` java
+    downloadManager.pause(downloadId)
+    ```
   * To release all the resources used by download manager use *release()*.
 
   	```java
@@ -129,10 +134,10 @@ Thin DownloadManager is an android library primary to download files and to avoi
   	```
 
 
-##No Permissions Required
+## No Permissions Required
   * Unless if you specify download destination to be in external public SDCard location.You might need *android.permission.WRITE_EXTERNAL_STORAGE* permission.
 
-##Setup
+## Setup
 Include below line your build.gradle:
 
 ```java
@@ -142,7 +147,7 @@ dependencies {
 ```
 Make sure you included jcenter() in your repositories section.
 
-##Download
+## Download
 * The source code of sample app code is available for you to play around and the app itself is available for download from play store :
 
 <a href="https://play.google.com/store/apps/details?id=com.mani.thindownloadmanager.app&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" width="100" height="50" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" ></a>
@@ -152,7 +157,7 @@ Make sure you included jcenter() in your repositories section.
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-ThinDownloadManager-green.svg?style=flat)](https://android-arsenal.com/details/1/2393)
 
-##Credits
+## Credits
 https://android.googlesource.com/platform/packages/providers/DownloadProvider/
 
 NOTE: Android's DownloadManager has plenty of features which is not available in ThinDownloadManager. For ex. pause and continue download when network connectivity changes.So analyse your requirement thoroughly and decide which one to use.
@@ -160,7 +165,7 @@ NOTE: Android's DownloadManager has plenty of features which is not available in
 https://www.virag.si/2015/01/publishing-gradle-android-library-to-jcenter/ 
 Steps for uploading to bintray.
 
-##License
+## License
 ```
  Copyright 2013 Mani Selvaraj
 
