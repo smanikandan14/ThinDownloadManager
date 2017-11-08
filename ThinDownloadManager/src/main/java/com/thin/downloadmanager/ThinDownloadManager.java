@@ -10,11 +10,6 @@ import java.security.InvalidParameterException;
  * This class used to handles long-running HTTP downloads, User can raise a {@link DownloadRequest} request with multiple features.
  * The download manager will conduct the download in the background, taking care of HTTP interactions, failures  and retrying downloads
  * across connectivity changes.
- * <p>
- * Note that the application must have the {@link android.Manifest.permission#INTERNET}
- * permission to use this class.
- *
- * @see com.thin.downloadmanager.DownloadManager
  *
  * @author Mani Selvaraj
  * @author Praveen Kumar
@@ -35,6 +30,7 @@ public class ThinDownloadManager implements DownloadManager {
 
     /**
      * Construct with logging Enabled.
+     * @param loggingEnabled - enable log info
      */
     public ThinDownloadManager(boolean loggingEnabled) {
         mRequestQueue = new DownloadRequestQueue();
@@ -45,7 +41,7 @@ public class ThinDownloadManager implements DownloadManager {
     /**
      * Construct with provided callback handler
      *
-     * @param callbackHandler
+     * @param callbackHandler - callback handler
      */
     public ThinDownloadManager(Handler callbackHandler) throws InvalidParameterException {
         mRequestQueue = new DownloadRequestQueue(callbackHandler);
