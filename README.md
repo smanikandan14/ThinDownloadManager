@@ -142,7 +142,7 @@ Include below line your build.gradle:
 
 ```java
 dependencies {
-    compile 'com.mani:ThinDownloadManager:1.3.0'
+    compile 'com.mani:ThinDownloadManager:1.4.0'
 }
 ```
 Make sure you included jcenter() in your repositories section.
