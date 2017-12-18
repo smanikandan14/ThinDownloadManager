@@ -76,7 +76,7 @@ Thin DownloadManager is an android library primary to download files and to avoi
                     }
 
                     @Override
-                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress)) {
+                    public void onProgress(int id, long totalBytes, long downlaodedBytes, int progress) {
 
                     }
                 });
