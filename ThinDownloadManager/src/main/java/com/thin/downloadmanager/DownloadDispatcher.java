@@ -438,6 +438,7 @@ class DownloadDispatcher extends Thread {
     private void cleanupDestination(DownloadRequest request, boolean forceClean) {
         if (!request.isResumable() || forceClean) {
             Log.d("cleanupDestination() deleting " + request.getDestinationURI().getPath());
+            mDownloadedCacheSize = 0; // reset into Zero.
             File destinationFile = new File(request.getDestinationURI().getPath());
             if (destinationFile.exists()) {
                 destinationFile.delete();
