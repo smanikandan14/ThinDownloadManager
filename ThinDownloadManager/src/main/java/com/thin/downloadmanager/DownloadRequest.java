@@ -64,6 +64,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private DownloadStatusListenerV1 mDownloadStatusListenerV1;
 
+    private String mMimeType;
+
     private Object mDownloadContext;
 
     private HashMap<String, String> mCustomHeader;
@@ -260,7 +262,13 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
         return mCancelled;
     }
 
+    public String getMimeType() {
+        return mMimeType;
+    }
 
+    public void setMimeType(String mMimeType) {
+        this.mMimeType = mMimeType;
+    }
 
     /**
      * Marked the request as canceled is aborted.
