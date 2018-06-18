@@ -1,5 +1,6 @@
 package com.thin.downloadmanager;
 
+import android.content.Intent;
 import android.os.Process;
 
 import com.thin.downloadmanager.util.Log;
@@ -172,6 +173,9 @@ class DownloadDispatcher extends Thread {
                         Log.d(TAG, "Existing mDownloadedCacheSize: " + mDownloadedCacheSize);
                         Log.d(TAG, "File mContentLength: " + mContentLength);
                         if (mDownloadedCacheSize == mContentLength) { // Mark as success, If end of stream already reached
+                            if (request.getMimeType() == null) {
+                                request.setMimeType(Intent.normalizeMimeType(conn.getContentType()));
+                            }
                             updateDownloadComplete(request);
                             Log.d(TAG, "Download Completed");
                         } else {
@@ -236,6 +240,9 @@ class DownloadDispatcher extends Thread {
         try {
             try {
                 in = new BufferedInputStream(conn.getInputStream());
+                if (request.getMimeType() == null) {
+                    request.setMimeType(Intent.normalizeMimeType(conn.getContentType()));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
