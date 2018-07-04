@@ -1,7 +1,10 @@
 package com.thin.downloadmanager;
 
 import android.net.Uri;
+import android.util.Patterns;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.HashMap;
 
 /**
@@ -71,6 +74,8 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
 
     private boolean isDownloadResumable = false;
 
+    private Proxy mProxy= Proxy.NO_PROXY;
+
     public DownloadRequest(Uri uri) {
         if (uri == null) {
             throw new NullPointerException();
@@ -101,6 +106,21 @@ public class DownloadRequest implements Comparable<DownloadRequest> {
     public DownloadRequest setPriority(Priority priority) {
         mPriority = priority;
         return this;
+    }
+
+    /**
+     * set proxy so the request will be sent through this proxy
+     * @param host
+     * @param port
+     * @return request
+     */
+
+    public DownloadRequest setProxy(String host,int port){
+        this.mProxy=new Proxy(Proxy.Type.HTTP,InetSocketAddress.createUnresolved(host,port));
+        return this;
+    }
+    public Proxy getProxy(){
+        return mProxy;
     }
 
     /**
