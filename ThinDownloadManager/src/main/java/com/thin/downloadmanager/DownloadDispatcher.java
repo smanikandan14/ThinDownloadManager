@@ -1,6 +1,7 @@
 package com.thin.downloadmanager;
 
 import android.os.Process;
+import android.webkit.URLUtil;
 
 import com.thin.downloadmanager.util.Log;
 
@@ -12,10 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.Proxy;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -134,7 +137,7 @@ class DownloadDispatcher extends Thread {
         HttpURLConnection conn = null;
 
         try {
-            conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection(request.getProxy());
             File destinationFile = new File(request.getDestinationURI().getPath());
             if (destinationFile.exists()) {
                 mDownloadedCacheSize = (int) destinationFile.length();
