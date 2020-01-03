@@ -21,6 +21,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+
 import static android.content.ContentValues.TAG;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
@@ -43,6 +49,12 @@ class DownloadDispatcher extends Thread {
      * The queue of download requests to service.
      */
     private final BlockingQueue<DownloadRequest> mQueue;
+
+    /**
+     * TrustManager that is used for the HTTP connection.
+     */
+    private final TrustManager mTrustManager;
+
     /**
      * The buffer size used to stream the data
      */
@@ -77,14 +89,26 @@ class DownloadDispatcher extends Thread {
 
     private Timer mTimer;
 
+
     /**
      * Constructor take the dependency (DownloadRequest queue) that all the Dispatcher needs
      */
     DownloadDispatcher(BlockingQueue<DownloadRequest> queue,
                        DownloadRequestQueue.CallBackDelivery delivery) {
+        this(queue, delivery, null);
+    }
+
+    /**
+     * Constructor take the dependency (DownloadRequest queue) that all the Dispatcher needs
+     */
+    DownloadDispatcher(BlockingQueue<DownloadRequest> queue,
+                       DownloadRequestQueue.CallBackDelivery delivery,
+                       TrustManager trustManager) {
         mQueue = queue;
         mDelivery = delivery;
+        mTrustManager = trustManager;
     }
+
 
     @Override
     public void run() {
@@ -131,10 +155,10 @@ class DownloadDispatcher extends Thread {
             return;
         }
 
-        HttpURLConnection conn = null;
+        HttpsURLConnection conn = null;
 
         try {
-            conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpsURLConnection) url.openConnection();
             File destinationFile = new File(request.getDestinationURI().getPath());
             if (destinationFile.exists()) {
                 mDownloadedCacheSize = (int) destinationFile.length();
@@ -145,6 +169,22 @@ class DownloadDispatcher extends Thread {
             conn.setInstanceFollowRedirects(false);
             conn.setConnectTimeout(request.getRetryPolicy().getCurrentTimeout());
             conn.setReadTimeout(request.getRetryPolicy().getCurrentTimeout());
+
+            if (mTrustManager != null) {
+                try {
+                    SSLContext sslContext = SSLContext.getInstance("TLS");
+                    sslContext.init(null, new TrustManager[]{mTrustManager}, null);
+                    HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                        @Override
+                        public boolean verify(String hostname, SSLSession session) {
+                            return true;
+                        }
+                    });
+                    conn.setSSLSocketFactory(sslContext.getSocketFactory());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
             HashMap<String, String> customHeaders = request.getCustomHeaders();
             if (customHeaders != null) {

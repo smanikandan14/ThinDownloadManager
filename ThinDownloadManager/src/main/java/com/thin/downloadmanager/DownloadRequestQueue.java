@@ -13,6 +13,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.TrustManager;
+
 public class DownloadRequestQueue {
 
 	/**
@@ -30,6 +32,8 @@ public class DownloadRequestQueue {
 	private AtomicInteger mSequenceGenerator = new AtomicInteger();
 
 	private CallBackDelivery mDelivery;
+
+	private TrustManager mTrustManager;
 
 	/**
 	 * Delivery class to delivery the call back to call back registrar in main thread.
@@ -108,6 +112,11 @@ public class DownloadRequestQueue {
 		initialize(new Handler(Looper.getMainLooper()), threadPoolSize);
 	}
 
+	public DownloadRequestQueue(int threadPoolSize, TrustManager trustManager) {
+		initialize(new Handler(Looper.getMainLooper()), threadPoolSize, trustManager);
+	}
+
+
 	/**
 	 * Construct with provided callback handler.
 	 *
@@ -126,7 +135,7 @@ public class DownloadRequestQueue {
 
 		// Create download dispatchers (and corresponding threads) up to the pool size.
 		for (int i = 0; i < mDownloadDispatchers.length; i++) {
-			DownloadDispatcher downloadDispatcher = new DownloadDispatcher(mDownloadQueue, mDelivery);
+			DownloadDispatcher downloadDispatcher = new DownloadDispatcher(mDownloadQueue, mDelivery, mTrustManager);
 			mDownloadDispatchers[i] = downloadDispatcher;
 			downloadDispatcher.start();
 		}
@@ -295,10 +304,18 @@ public class DownloadRequestQueue {
 
 	/**
 	 * Perform construction with custom thread pool size.
-        */
+	 */
 	private void initialize(Handler callbackHandler, int threadPoolSize) {
 		mDownloadDispatchers = new DownloadDispatcher[threadPoolSize];
 		mDelivery = new CallBackDelivery(callbackHandler);
+	}
+
+	/**
+	 * Perform construction with custom thread pool size.
+	 */
+	private void initialize(Handler callbackHandler, int threadPoolSize, TrustManager trustManager) {
+		initialize(callbackHandler, threadPoolSize);
+		mTrustManager = trustManager;
 	}
 
 	/**
